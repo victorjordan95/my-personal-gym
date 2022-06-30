@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Home } from './pages/Home';
 import { Oriented } from './pages/Oriented';
 import { Orienteds } from './pages/Orienteds';
+import { OrientedWorkout } from './pages/OrientedWorkout';
 import Workouts from './pages/Workouts';
 
 export default function AppRoutes() {
@@ -14,6 +15,11 @@ export default function AppRoutes() {
         <Route path="/treinos" exact element={<Workouts />} />
         <Route path="/orientados" exact element={<Orienteds />} />
         <Route path="/orientados/:id" exact element={<Oriented />} />
+        <Route
+          path="/orientados/:id/treino"
+          exact
+          element={<OrientedWorkout />}
+        />
       </Route>
     </Routes>
   );

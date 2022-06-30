@@ -5,7 +5,6 @@ import {
   Form,
   Input,
   InputNumber,
-  notification,
   Radio,
   Row,
   Space,
@@ -14,6 +13,8 @@ import TextArea from 'antd/lib/input/TextArea';
 import { useEffect, useState } from 'react';
 
 import CrudService from '../../../services/CrudService';
+import { errorHandler } from '../../../utils/errorHandler';
+import { successHandler } from '../../../utils/successHandler';
 
 export function OrientedsForm({
   visible,
@@ -29,36 +30,21 @@ export function OrientedsForm({
     try {
       CrudService.save(TABLE_DB_NAME, values);
       handleCloseModal();
-      notification.success({
-        message: 'Sucesso',
-        description:
-          'Registro salvo com sucesso. Você pode continuar adicionando outros registros.',
-        duration: 4.5,
-      });
+      successHandler(
+        'Registro salvo com sucesso. Você pode continuar adicionando outros registros.'
+      );
     } catch (error) {
-      notification.error({
-        message: 'Ocorreu um erro',
-        description: error.message,
-        duration: 4.5,
-      });
+      errorHandler(error);
     }
   };
 
   const updateData = async (values) => {
     try {
       CrudService.update(TABLE_DB_NAME, editForm.id, values);
-      notification.success({
-        message: 'Sucesso',
-        description: 'Registro atualizado com sucesso.',
-        duration: 4.5,
-      });
+      successHandler('Registro atualizado com sucesso.');
       handleCloseModal();
     } catch (error) {
-      notification.error({
-        message: 'Ocorreu um erro',
-        description: error.message,
-        duration: 4.5,
-      });
+      errorHandler(error);
     }
   };
 

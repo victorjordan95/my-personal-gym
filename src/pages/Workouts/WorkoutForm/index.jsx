@@ -1,7 +1,9 @@
-import { Button, Drawer, Form, Input, notification, Select, Space } from 'antd';
+import { Button, Drawer, Form, Input, Select, Space } from 'antd';
 import { Timestamp } from 'firebase/firestore';
 
 import CrudService from '../../../services/CrudService';
+import { errorHandler } from '../../../utils/errorHandler';
+import { successHandler } from '../../../utils/successHandler';
 
 export function WorkoutForm({
   visible,
@@ -18,18 +20,11 @@ export function WorkoutForm({
         updatedAt: Timestamp.now(),
       });
       handleCloseModal();
-      notification.success({
-        message: 'Sucesso',
-        description:
-          'Registro salvo com sucesso. Você pode continuar adicionando outros registros.',
-        duration: 4.5,
-      });
+      successHandler(
+        'Registro salvo com sucesso. Você pode continuar adicionando outros registros.'
+      );
     } catch (error) {
-      notification.error({
-        message: 'Ocorreu um erro',
-        description: error.message,
-        duration: 4.5,
-      });
+      errorHandler(error);
     }
   };
 
@@ -39,18 +34,10 @@ export function WorkoutForm({
         ...values,
         updatedAt: Timestamp.now(),
       });
-      notification.success({
-        message: 'Sucesso',
-        description: 'Registro atualizado com sucesso.',
-        duration: 4.5,
-      });
+      successHandler('Registro atualizado com sucesso.');
       handleCloseModal();
     } catch (error) {
-      notification.error({
-        message: 'Ocorreu um erro',
-        description: error.message,
-        duration: 4.5,
-      });
+      errorHandler(error);
     }
   };
 

@@ -16,6 +16,7 @@ import CrudService from '../../services/CrudService';
 import { OrientedsForm } from '../Orienteds/OrientedsForm';
 
 import * as S from './styles';
+import { TableWorkout } from './TableWorkout';
 
 const { TabPane } = Tabs;
 
@@ -23,11 +24,10 @@ function OrientedWorkouts() {
   return <p>tab1</p>;
 }
 
+const TABLE_DB_NAME = `orienteds`;
 export function Oriented() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const TABLE_DB_NAME = `orienteds`;
 
   const [editForm, setEditForm] = useState({});
   const [visible, setVisible] = useState(false);
@@ -78,16 +78,20 @@ export function Oriented() {
         footer={
           <Tabs defaultActiveKey="1">
             <TabPane tab="Details" key="1">
+              <TableWorkout />
+            </TabPane>
+            <TabPane tab="Rule" key="2">
               <OrientedWorkouts />
             </TabPane>
-            <TabPane tab="Rule" key="2" />
           </Tabs>
         }
       >
         <div className="content">
           <div className="main">
             <Descriptions size="small" column={2}>
-              <Descriptions.Item label="Peso">Lili Qu</Descriptions.Item>
+              <Descriptions.Item label="Peso">
+                {data?.weight} kg
+              </Descriptions.Item>
               <Descriptions.Item label="Objetivo">
                 {data?.goal}
               </Descriptions.Item>
@@ -111,34 +115,5 @@ export function Oriented() {
         isEditable={false}
       />
     </S.CardContainer>
-    // <PageHeader
-    //   ghost={false}
-    //   onBack={() => navigate(-1)}
-    //   title="Alunos"
-    //   subTitle="Lista de alunos"
-    //   extra={[
-    //     <Button type="primary" onClick={showDrawer}>
-    //       Cadastrar novo
-    //     </Button>,
-    //   ]}
-    // >
-    //   <Table
-    //     dataSource={data}
-    //     columns={columns}
-    //     onRow={(record) => ({
-    //       onClick: () => {
-    //         navigate(`/alunos/${record.id}`);
-    //       },
-    //     })}
-    //   />
-
-    //   <OrientedForm
-    //     editForm={editForm}
-    //     handleCloseModal={handleCloseModal}
-    //     setEditForm={setEditForm}
-    //     visible={visible}
-    //     TABLE_DB_NAME={TABLE_DB_NAME}
-    //   />
-    // </PageHeader>
   );
 }

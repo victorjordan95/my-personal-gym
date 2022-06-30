@@ -14,7 +14,9 @@ export const AppLayout = styled(Layout)`
 export const Container = styled(Layout)`
   min-height: calc(100vh - 60px);
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-height: 100vh;
     min-height: 100vh;
+    overflow: scroll;
   }
 `;
 

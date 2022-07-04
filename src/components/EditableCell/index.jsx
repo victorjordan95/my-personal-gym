@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Form, Input, InputNumber } from 'antd';
+import { Form, Input, Select } from 'antd';
+
+const { Option } = Select;
 
 export function EditableCell({
   editing,
@@ -9,9 +11,31 @@ export function EditableCell({
   record,
   index,
   children,
+  workouts,
+  onChange,
   ...restProps
 }) {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+  const inputNode =
+    inputType === 'select' ? (
+      <Select
+        showSearch
+        placeholder="Select a person"
+        optionFilterProp="children"
+        onChange={onChange}
+        filterOption={(input, option) =>
+          option.children.toLowerCase().includes(input.toLowerCase())
+        }
+      >
+        {workouts.map((workout) => (
+          <Option key={workout.id} value={workout.name}>
+            {workout.name}
+          </Option>
+        ))}
+      </Select>
+    ) : (
+      <Input />
+    );
+
   return (
     <td {...restProps}>
       {editing ? (

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Button,
@@ -10,7 +11,7 @@ import {
   Table,
   Typography,
 } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,16 +21,20 @@ import { deepFreeze } from '../../../utils/deepFreeze';
 import { errorHandler } from '../../../utils/errorHandler';
 
 export function WorkoutTableForm({
+  allWorkouts,
   workoutTypes,
   setWorkoutTypes,
   week,
   TABLE_DB_NAME,
 }) {
   const freezedDB = deepFreeze(week);
+  const freezeAllWorkouts = deepFreeze(allWorkouts);
 
   const [form] = Form.useForm();
+
   const [editingKey, setEditingKey] = useState('');
-  const [count, setCount] = useState(2);
+  const [workoutsRegistered, setWorkoutsRegistered] = useState([]);
+  const [selectedWorkout, setSelectedWorkout] = useState({});
 
   const isEditing = (record) => record.key === editingKey;
   const cancel = () => setEditingKey('');
@@ -59,19 +64,30 @@ export function WorkoutTableForm({
         (workoutType) => workoutType.name === record.workoutType
       )
     );
-    const oldWorkouts = workoutTypes.filter(
-      (workout) => workout.name !== workoutGroup.name
-    );
 
     try {
       const row = await form.validateFields();
+      const newRow = { ...row, ...selectedWorkout };
       const newData = [...(workoutGroup.workouts ?? [])];
       const index = newData.findIndex((item) => record.key === item.key);
+      const workoutGroupindex = freezeAllWorkouts[0].workouts.findIndex(
+        (el) => el.id === workoutGroup.id
+      );
 
+      freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index] = {
+        ...newRow,
+        workoutType: freezeAllWorkouts[0].workouts[workoutGroupindex].id,
+        key:
+          freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index]
+            ?.key || uuidv4(),
+        id:
+          freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index]
+            ?.id || week.id,
+      };
       const item = newData[index];
-      workoutGroup.workouts.splice(index, 1, { ...item, ...row });
-      setWorkoutTypes([...oldWorkouts, workoutGroup]);
-      saveWorkout({ item, row });
+
+      setWorkoutTypes(freezeAllWorkouts);
+      saveWorkout({ item, row: newRow });
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
@@ -79,38 +95,28 @@ export function WorkoutTableForm({
   }
 
   function handleAddExercise(idParam) {
-    const workouts = workoutTypes.find((item) => item.id === idParam);
+    const workoutIndex = workoutTypes.findIndex((item) => item.id === idParam);
+
     const uuid = uuidv4();
-    const newData = {
-      ...workouts,
-      workouts: [
-        ...workouts.workouts,
-        {
-          key: uuid,
-          id: uuid,
-          name: '',
-          repetitions: '',
-          series: '',
-          weight: '',
-          rest: '',
-          workoutType: workouts.name,
-        },
-      ],
-    };
-
-    const newDataWorkouts = [
-      ...workoutTypes.filter((item) => item.id !== idParam),
-      newData,
-    ];
-
-    setWorkoutTypes(newDataWorkouts.sort((a, b) => a.id - b.id));
-    setCount(count + 1);
+    freezeAllWorkouts[0].workouts[workoutIndex].workouts.push({
+      key: uuid,
+      id: week.id,
+      observations: '',
+      name: '',
+      repetitions: '',
+      series: '',
+      weight: '',
+      rest: '',
+      workoutType: idParam,
+    });
+    setWorkoutTypes(freezeAllWorkouts);
   }
 
   function edit(record) {
     form.setFieldsValue({
       key: '0',
       name: '',
+      observations: '',
       repetitions: '',
       series: '',
       weight: '',
@@ -122,17 +128,30 @@ export function WorkoutTableForm({
   }
 
   function handleRemoveExercise(exercise) {
-    const workouts = workoutTypes.find(
-      (item) => item.name === exercise.workoutType
+    const indexWorkoutType = freezeAllWorkouts[0].workouts.findIndex(
+      (el) => el.id === exercise.workoutType
     );
-    const newData = [...workouts.workouts];
-    const index = newData.findIndex((item) => exercise.key === item.key);
-    newData.splice(index, 1);
-    const newDataWorkouts = [
-      ...workoutTypes.filter((item) => item.name !== exercise.workoutType),
+
+    const removeIndex = freezeAllWorkouts[0].workouts[
+      indexWorkoutType
+    ].workouts.findIndex((el) => el.key === exercise.key);
+
+    const workoutIndex = freezeAllWorkouts[0].workouts.findIndex(
+      (el) => el.name === exercise.workoutType
+    );
+
+    if (indexWorkoutType === -1) {
+      const arrayRemoveWorkouts =
+        freezeAllWorkouts[0].workouts[workoutIndex].workouts;
+      delete arrayRemoveWorkouts[arrayRemoveWorkouts.length - 1];
+      setWorkoutTypes(freezeAllWorkouts);
+      return;
+    }
+
+    delete freezeAllWorkouts[0].workouts[indexWorkoutType].workouts[
+      removeIndex
     ];
-    newDataWorkouts.push({ ...workouts, workouts: newData });
-    setWorkoutTypes(newDataWorkouts.sort((a, b) => a.id - b.id));
+    setWorkoutTypes(freezeAllWorkouts);
 
     const weekItemIndex = week.workouts.findIndex((w) => w.id === exercise.id);
     freezedDB.workouts.splice(weekItemIndex, 1);
@@ -154,6 +173,16 @@ export function WorkoutTableForm({
     {
       title: 'Exercício',
       dataIndex: 'name',
+      editable: true,
+      render: (_, record) => (
+        <a href={record?.url_video} target="_blank" rel="noreferrer">
+          {record.name}
+        </a>
+      ),
+    },
+    {
+      title: 'Observações',
+      dataIndex: 'observations',
       editable: true,
     },
     {
@@ -216,6 +245,18 @@ export function WorkoutTableForm({
     },
   ];
 
+  const handleChange = (value) => {
+    const selectedValue = workoutsRegistered.find(
+      (item) => item.name === value
+    );
+    setSelectedWorkout({
+      name: selectedValue.name,
+      id: selectedValue.id,
+      type: selectedValue.type,
+      url_video: selectedValue?.url_video ?? '',
+    });
+  };
+
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
@@ -225,58 +266,72 @@ export function WorkoutTableForm({
       ...col,
       onCell: (record) => ({
         record,
-        inputType: col.dataIndex === 'age' ? 'number' : 'text',
+        inputType: col.dataIndex === 'name' ? 'select' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
+        workouts: workoutsRegistered,
+        onChange: handleChange,
         editing: isEditing(record),
       }),
     };
   });
 
-  return workoutTypes.map((workoutType) => (
-    <>
-      <Row gutter={16}>
-        <Col className="gutter-row" span={6}>
-          <Typography.Title level={3}>
-            Treino: {workoutType.name}
-          </Typography.Title>
-        </Col>
-        <Col
-          className="gutter-row"
-          span={8}
-          offset={10}
-          style={{ textAlign: 'right' }}
-        >
-          <Space size={18}>
-            <Button
-              onClick={() => handleAddExercise(workoutType.id)}
-              type="primary"
-            >
-              Adicionar exercicio
-            </Button>
+  async function getWorkouts() {
+    const response = await CrudService.getAll('/workouts');
+    setWorkoutsRegistered(response);
+  }
 
-            <Button onClick={() => removeWholeWorkout(workoutType.id)} danger>
-              Remover treino
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+  useEffect(() => {
+    getWorkouts();
+  }, []);
 
-      <Form form={form} component={false}>
-        <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          bordered
-          columns={mergedColumns}
-          dataSource={workoutType?.workouts}
-          pagination={{ hideOnSinglePage: true }}
-          rowClassName="editable-row"
-        />
-      </Form>
-      <Divider />
-    </>
-  ));
+  return (
+    workoutTypes.length > 0 &&
+    workoutTypes.map((workoutType) => (
+      <>
+        <Row gutter={16}>
+          <Col className="gutter-row" span={6}>
+            <Typography.Title level={3}>
+              Treino: {workoutType.name}
+            </Typography.Title>
+          </Col>
+          <Col
+            className="gutter-row"
+            span={8}
+            offset={10}
+            style={{ textAlign: 'right' }}
+          >
+            <Space size={18}>
+              <Button
+                onClick={() => handleAddExercise(workoutType.id)}
+                type="primary"
+              >
+                Adicionar exercicio
+              </Button>
+
+              <Button onClick={() => removeWholeWorkout(workoutType.id)} danger>
+                Remover treino
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+
+        <Form form={form} component={false}>
+          <Table
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+            bordered
+            columns={mergedColumns}
+            dataSource={workoutType?.workouts}
+            pagination={{ hideOnSinglePage: true }}
+            rowClassName="editable-row"
+          />
+        </Form>
+        <Divider />
+      </>
+    ))
+  );
 }

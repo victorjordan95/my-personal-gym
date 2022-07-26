@@ -48,12 +48,19 @@ export function WorkoutTableForm({
   }
 
   function saveWorkout({ item, row }) {
-    const weekItemIndex = week.workouts.findIndex((w) => w.id === item.id);
+    const findWorkoutTypeId = week.workouts.findIndex(
+      (el) => el.id === item.workoutType
+    );
+    const weekItemIndex = week.workouts[findWorkoutTypeId]?.workouts.findIndex(
+      (w) => w.id === item.id
+    );
+
+    const arrayWorkouts = freezedDB.workouts[findWorkoutTypeId].workouts;
 
     if (weekItemIndex === -1) {
-      freezedDB.workouts.push({ ...item, ...row });
+      arrayWorkouts.push({ ...item, ...row });
     } else {
-      freezedDB.workouts.splice(weekItemIndex, 1, { ...item, ...row });
+      arrayWorkouts.splice(weekItemIndex, 1, { ...item, ...row });
     }
     updateBD(week.id, freezedDB);
   }
@@ -73,16 +80,17 @@ export function WorkoutTableForm({
       const workoutGroupindex = freezeAllWorkouts[0].workouts.findIndex(
         (el) => el.id === workoutGroup.id
       );
+      const weekIndex = freezeAllWorkouts.findIndex(
+        (el) => el.id === record.id
+      );
+      const freezeIndex =
+        freezeAllWorkouts[weekIndex].workouts[workoutGroupindex];
 
-      freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index] = {
+      freezeIndex.workouts[index] = {
         ...newRow,
-        workoutType: freezeAllWorkouts[0].workouts[workoutGroupindex].id,
-        key:
-          freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index]
-            ?.key || uuidv4(),
-        id:
-          freezeAllWorkouts[0].workouts[workoutGroupindex].workouts[index]
-            ?.id || week.id,
+        workoutType: freezeIndex.id,
+        key: freezeIndex.workouts[index]?.key || uuidv4(),
+        id: freezeIndex.workouts[index]?.id || week.id,
       };
       const item = newData[index];
 
@@ -128,29 +136,27 @@ export function WorkoutTableForm({
   }
 
   function handleRemoveExercise(exercise) {
-    const indexWorkoutType = freezeAllWorkouts[0].workouts.findIndex(
+    const workoutsList = freezeAllWorkouts[0].workouts;
+    const indexWorkoutType = workoutsList.workouts.findIndex(
       (el) => el.id === exercise.workoutType
     );
 
-    const removeIndex = freezeAllWorkouts[0].workouts[
+    const removeIndex = workoutsList.workouts[
       indexWorkoutType
     ].workouts.findIndex((el) => el.key === exercise.key);
 
-    const workoutIndex = freezeAllWorkouts[0].workouts.findIndex(
+    const workoutIndex = workoutsList.workouts.findIndex(
       (el) => el.name === exercise.workoutType
     );
 
     if (indexWorkoutType === -1) {
-      const arrayRemoveWorkouts =
-        freezeAllWorkouts[0].workouts[workoutIndex].workouts;
+      const arrayRemoveWorkouts = workoutsList.workouts[workoutIndex].workouts;
       delete arrayRemoveWorkouts[arrayRemoveWorkouts.length - 1];
       setWorkoutTypes(freezeAllWorkouts);
       return;
     }
 
-    delete freezeAllWorkouts[0].workouts[indexWorkoutType].workouts[
-      removeIndex
-    ];
+    delete workoutsList.workouts[indexWorkoutType].workouts[removeIndex];
     setWorkoutTypes(freezeAllWorkouts);
 
     const weekItemIndex = week.workouts.findIndex((w) => w.id === exercise.id);
@@ -160,7 +166,6 @@ export function WorkoutTableForm({
 
   function removeWholeWorkout(key) {
     const newData = workoutTypes.filter((item) => item.id !== key);
-
     const newDataDB = {
       ...week,
       workouts: week.workouts.filter((item) => item.workoutType !== key),

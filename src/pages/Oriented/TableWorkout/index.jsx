@@ -71,6 +71,7 @@ export function TableWorkout() {
   };
 
   const save = async (key) => {
+    debugger;
     try {
       const row = await form.validateFields();
       const newData = [...data];

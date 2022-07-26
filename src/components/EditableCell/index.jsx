@@ -19,7 +19,7 @@ export function EditableCell({
     inputType === 'select' ? (
       <Select
         showSearch
-        placeholder="Select a person"
+        placeholder="Selecione um exercício"
         optionFilterProp="children"
         onChange={onChange}
         filterOption={(input, option) =>
@@ -43,11 +43,12 @@ export function EditableCell({
           name={dataIndex}
           style={{
             margin: 0,
+            width: inputType === 'select' ? '190px' : 'auto',
           }}
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`,
+              message: `Insira ${title}!`,
             },
           ]}
         >

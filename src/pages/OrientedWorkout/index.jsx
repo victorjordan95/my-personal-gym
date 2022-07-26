@@ -20,21 +20,6 @@ export function OrientedWorkout() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const addWeek = () => {
-    const newData = {
-      id: uuidv4(),
-      name: `Semana ${weeks.length + 1}`,
-      workouts: [],
-    };
-    setWeeks([...weeks, newData]);
-    setWorkoutTypes([...weeks, newData]);
-    try {
-      CrudService.save(TABLE_DB_NAME, newData);
-    } catch (error) {
-      errorHandler(error);
-    }
-  };
-
   const addWorkout = async () => {
     const currentlyActiveWeek = workoutTypes.find(
       (week) => week.id === activeWeek
@@ -43,28 +28,16 @@ export function OrientedWorkout() {
       (week) => week.id === activeWeek
     );
     const workoutsWeek = currentlyActiveWeek?.workouts;
+    const length = workoutsWeek?.length || 0;
     const newData = {
-      id: workoustIds[workoutsWeek.length + 1],
-      name: workoustIds[workoutsWeek.length + 1],
+      id: workoustIds[length + 1],
+      name: workoustIds[length + 1],
       workouts: [],
     };
 
-    const uuid = uuidv4();
     const newDataDB = {
       ...currentlyActiveWeek,
-      workouts: [
-        ...currentlyActiveWeek.workouts,
-        {
-          workoutType: workoustIds[workoutsWeek.length + 1],
-          id: uuid,
-          key: uuid,
-          name: '',
-          repetitions: '',
-          series: '',
-          weight: '',
-          rest: '',
-        },
-      ],
+      workouts: [...(currentlyActiveWeek?.workouts || []), newData],
     };
 
     try {
@@ -73,20 +46,31 @@ export function OrientedWorkout() {
       errorHandler(error);
     }
 
-    setWorkoutTypes([
-      ...workoutTypes.slice(0, currentlyActiveWeekIndex),
-      {
-        ...workoutTypes[currentlyActiveWeekIndex],
-        workouts: [...workoutTypes[currentlyActiveWeekIndex].workouts, newData],
-      },
-      ...workoutTypes.slice(currentlyActiveWeekIndex + 1),
-    ]);
+    if (currentlyActiveWeekIndex === -1) {
+      const newWorkoutTypes = [
+        {
+          id: activeWeek,
+          workouts: [...(workoutsWeek || []), newData],
+        },
+      ];
+      setWorkoutTypes(newWorkoutTypes);
+    } else {
+      setWorkoutTypes([
+        ...workoutTypes.slice(0, currentlyActiveWeekIndex),
+        {
+          ...workoutTypes[currentlyActiveWeekIndex],
+          workouts: [
+            ...(workoutTypes[currentlyActiveWeekIndex].workouts || []),
+            newData,
+          ],
+        },
+        ...workoutTypes.slice(currentlyActiveWeekIndex + 1),
+      ]);
+    }
   };
 
   async function getExercises(week) {
-    const kindWorkouts = [
-      ...new Set(week?.workouts.map((el) => el.workoutType)),
-    ].sort();
+    const kindWorkouts = [...new Set(week?.workouts.map((el) => el.id))].sort();
 
     if (kindWorkouts.length === 0) {
       kindWorkouts.push('A');
@@ -94,9 +78,10 @@ export function OrientedWorkout() {
 
     const exercisesList = kindWorkouts.map((kindWorkout) => {
       const exerciceType = [];
+
       week?.workouts.forEach((exercise) => {
-        if (exercise.workoutType === kindWorkout) {
-          exerciceType.push(exercise);
+        if (exercise.id === kindWorkout) {
+          exerciceType.push(...exercise.workouts);
         }
       });
 
@@ -107,13 +92,6 @@ export function OrientedWorkout() {
       };
     });
 
-    console.log([
-      ...workoutTypes,
-      {
-        id: week.id,
-        workouts: [...exercisesList],
-      },
-    ]);
     setWorkoutTypes((prevExer) => [
       ...prevExer,
       {
@@ -124,10 +102,34 @@ export function OrientedWorkout() {
     setIsLoading(false);
   }
 
+  const addWeek = () => {
+    let workouts = [];
+    if (weeks.length > 0) {
+      workouts = weeks[weeks.length - 1].workouts;
+    }
+    const newData = {
+      id: uuidv4(),
+      name: `Semana ${weeks.length + 1}`,
+      workouts,
+    };
+    try {
+      const newWeeks = [...weeks, newData];
+      CrudService.save(TABLE_DB_NAME, newData);
+      newWeeks.forEach((week) => {
+        getExercises(week);
+      });
+      setWeeks(newWeeks);
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
+
   async function getWeeks() {
     try {
       const weeksData = await CrudService.getAll(TABLE_DB_NAME);
-      setWeeks(weeksData);
+      setWeeks(
+        weeksData.sort((a, b) => a.createdAt.seconds - b.createdAt.seconds)
+      );
       setActiveWeek(weeksData[0].id);
       weeksData.forEach((week) => {
         getExercises(week);
@@ -158,11 +160,12 @@ export function OrientedWorkout() {
 
   return (
     <Tabs
+      activeKey={activeWeek}
       onChange={(activeKey) => handleChangeWeek(activeKey)}
       tabBarExtraContent={
         <Space>
           <Button onClick={addWeek}>Adicionar semana</Button>
-          <Button onClick={() => addWorkout()}>Adicionar treino</Button>
+          <Button onClick={addWorkout}>Adicionar treino</Button>
         </Space>
       }
     >

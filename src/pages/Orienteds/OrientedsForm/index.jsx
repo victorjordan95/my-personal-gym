@@ -40,7 +40,7 @@ export function OrientedsForm({
 
   const updateData = async (values) => {
     try {
-      CrudService.update(TABLE_DB_NAME, editForm.id, values);
+      CrudService.update(TABLE_DB_NAME, editForm?.id, values);
       successHandler('Registro atualizado com sucesso.');
       handleCloseModal();
     } catch (error) {
@@ -49,7 +49,7 @@ export function OrientedsForm({
   };
 
   const onFinish = async (values) => {
-    if (editForm.id) {
+    if (editForm?.id) {
       updateData(values);
     } else {
       createData(values);
@@ -58,7 +58,6 @@ export function OrientedsForm({
   };
 
   useEffect(() => {
-    console.log('chegou valor', editForm);
     setFormValues(editForm);
   }, [editForm]);
 

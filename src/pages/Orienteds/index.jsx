@@ -30,7 +30,6 @@ export function Orienteds() {
 
   const getData = async () => {
     const dataList = await CrudService.getAll(TABLE_DB_NAME);
-    console.log(dataList);
     setData(dataList);
   };
 

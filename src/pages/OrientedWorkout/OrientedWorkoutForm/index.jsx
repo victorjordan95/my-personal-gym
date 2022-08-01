@@ -26,6 +26,7 @@ export function WorkoutTableForm({
   setWorkoutTypes,
   week,
   TABLE_DB_NAME,
+  updateWeek,
 }) {
   const freezedDB = deepFreeze(week);
   const freezeAllWorkouts = deepFreeze(allWorkouts);
@@ -42,27 +43,43 @@ export function WorkoutTableForm({
   async function updateBD(id, data) {
     try {
       await CrudService.update(TABLE_DB_NAME, id, data);
+      updateWeek(id, data);
     } catch (error) {
       errorHandler(error);
     }
   }
 
-  function saveWorkout({ item, row }) {
-    const findWorkoutTypeId = week.workouts.findIndex(
-      (el) => el.id === item.workoutType
-    );
-    const weekItemIndex = week.workouts[findWorkoutTypeId]?.workouts.findIndex(
-      (w) => w.id === item.id
-    );
-
-    const arrayWorkouts = freezedDB.workouts[findWorkoutTypeId].workouts;
-
-    if (weekItemIndex === -1) {
-      arrayWorkouts.push({ ...item, ...row });
-    } else {
-      arrayWorkouts.splice(weekItemIndex, 1, { ...item, ...row });
-    }
+  function updateExercise({ data, exercise }) {
+    const index = freezedDB.workouts.findIndex((el) => el.key === exercise.key);
+    freezedDB.workouts[index] = data;
     updateBD(week.id, freezedDB);
+  }
+
+  function createNewExercise({ data }) {
+    freezedDB.workouts.push(data);
+    updateBD(week.id, freezedDB);
+  }
+
+  function saveWorkout({ item, row, workouts }) {
+    // check in freezedDB if has workouts of the same type
+    const workoutType = freezedDB.workouts.find(
+      (workout) =>
+        workout.id === item.workoutType ||
+        workout.workoutType === item.workoutType
+    );
+
+    if (!workoutType) {
+      createNewExercise({ data: { ...item, ...row } });
+      return;
+    }
+
+    const foundExercise = freezedDB.workouts.find((el) => el.key === item.key);
+    if (foundExercise) {
+      updateExercise({ data: { ...item, ...row }, exercise: foundExercise });
+      return;
+    }
+
+    createNewExercise({ data: { ...item, ...row }, workoutType });
   }
 
   async function handleConfirmClick(record) {
@@ -81,7 +98,7 @@ export function WorkoutTableForm({
         (el) => el.id === workoutGroup.id
       );
       const weekIndex = freezeAllWorkouts.findIndex(
-        (el) => el.id === record.id
+        (el) => el.id === record.weekId || el.id === record.id
       );
       const freezeIndex =
         freezeAllWorkouts[weekIndex].workouts[workoutGroupindex];
@@ -95,26 +112,34 @@ export function WorkoutTableForm({
       const item = newData[index];
 
       setWorkoutTypes(freezeAllWorkouts);
-      saveWorkout({ item, row: newRow });
+      saveWorkout({
+        item,
+        row: newRow,
+        weekIndex,
+        workouts: freezeIndex.workouts,
+      });
     } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+      console.error('Validate Failed:', errInfo);
     }
     setEditingKey('');
   }
 
   function handleAddExercise(idParam) {
     const workoutIndex = workoutTypes.findIndex((item) => item.id === idParam);
+    const weekIndex = freezeAllWorkouts.findIndex(
+      (el) => el.id === week.id || el.id === week.id
+    );
 
-    const uuid = uuidv4();
-    freezeAllWorkouts[0].workouts[workoutIndex].workouts.push({
-      key: uuid,
-      id: week.id,
-      observations: '',
+    freezeAllWorkouts[weekIndex].workouts[workoutIndex].workouts.push({
+      id: '',
+      key: uuidv4(),
       name: '',
+      observations: '',
       repetitions: '',
-      series: '',
-      weight: '',
       rest: '',
+      series: '',
+      weekId: week.id,
+      weight: '',
       workoutType: idParam,
     });
     setWorkoutTypes(freezeAllWorkouts);
@@ -136,31 +161,28 @@ export function WorkoutTableForm({
   }
 
   function handleRemoveExercise(exercise) {
-    const workoutsList = freezeAllWorkouts[0].workouts;
-    const indexWorkoutType = workoutsList.workouts.findIndex(
-      (el) => el.id === exercise.workoutType
+    const weekIndex = freezeAllWorkouts.findIndex((el) => el.id === week.id);
+    const workoutsList = freezeAllWorkouts[weekIndex].workouts;
+    const indexWorkoutType = workoutsList.findIndex(
+      (el) => el.id === exercise.workoutType || el.name === exercise.workoutType
     );
 
-    const removeIndex = workoutsList.workouts[
-      indexWorkoutType
-    ].workouts.findIndex((el) => el.key === exercise.key);
-
-    const workoutIndex = workoutsList.workouts.findIndex(
-      (el) => el.name === exercise.workoutType
+    const foundGroupExercises = workoutsList[indexWorkoutType].workouts;
+    const foundExercise = foundGroupExercises.find(
+      (el) => el.key === exercise.key
+    );
+    const foundExerciseIndex = foundGroupExercises.findIndex(
+      (el) => el.key === exercise.key
     );
 
-    if (indexWorkoutType === -1) {
-      const arrayRemoveWorkouts = workoutsList.workouts[workoutIndex].workouts;
-      delete arrayRemoveWorkouts[arrayRemoveWorkouts.length - 1];
-      setWorkoutTypes(freezeAllWorkouts);
-      return;
-    }
+    freezedDB.workouts.splice(freezedDB.workouts.indexOf(foundExercise), 1);
 
-    delete workoutsList.workouts[indexWorkoutType].workouts[removeIndex];
+    freezeAllWorkouts[weekIndex].workouts[indexWorkoutType].workouts.splice(
+      foundExerciseIndex,
+      1
+    );
+
     setWorkoutTypes(freezeAllWorkouts);
-
-    const weekItemIndex = week.workouts.findIndex((w) => w.id === exercise.id);
-    freezedDB.workouts.splice(weekItemIndex, 1);
     updateBD(week.id, freezedDB);
   }
 
@@ -179,11 +201,14 @@ export function WorkoutTableForm({
       title: 'Exercício',
       dataIndex: 'name',
       editable: true,
-      render: (_, record) => (
-        <a href={record?.url_video} target="_blank" rel="noreferrer">
-          {record.name}
-        </a>
-      ),
+      render: (_, record) =>
+        record?.url_video ? (
+          <a href={record?.url_video} target="_blank" rel="noreferrer">
+            {record.name}
+          </a>
+        ) : (
+          record.name
+        ),
     },
     {
       title: 'Observações',
@@ -254,12 +279,7 @@ export function WorkoutTableForm({
     const selectedValue = workoutsRegistered.find(
       (item) => item.name === value
     );
-    setSelectedWorkout({
-      name: selectedValue.name,
-      id: selectedValue.id,
-      type: selectedValue.type,
-      url_video: selectedValue?.url_video ?? '',
-    });
+    setSelectedWorkout(selectedValue);
   };
 
   const mergedColumns = columns.map((col) => {

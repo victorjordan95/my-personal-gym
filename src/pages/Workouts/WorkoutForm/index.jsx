@@ -1,27 +1,31 @@
 import { Button, Drawer, Form, Input, Select, Space } from 'antd';
-import { Timestamp } from 'firebase/firestore';
+import { useEffect } from 'react';
 
 import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
 
 export function WorkoutForm({
-  visible,
-  handleCloseModal,
   editForm,
+  handleCloseModal,
   setEditForm,
+  setWorkouts,
   TABLE_DB_NAME,
+  visible,
 }) {
+  const [form] = Form.useForm();
+
   const createData = async (values) => {
     try {
       CrudService.save(TABLE_DB_NAME, {
         ...values,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        url_video: values.url_video || '',
       });
-      handleCloseModal();
+      form.resetFields();
+      setWorkouts((prev) => [values, ...prev]);
       successHandler(
-        'Registro salvo com sucesso. Você pode continuar adicionando outros registros.'
+        'Registro salvo com sucesso. Você pode continuar adicionando outros registros.',
+        'topLeft'
       );
     } catch (error) {
       errorHandler(error);
@@ -30,10 +34,7 @@ export function WorkoutForm({
 
   const updateData = async (values) => {
     try {
-      CrudService.update(TABLE_DB_NAME, editForm.id, {
-        ...values,
-        updatedAt: Timestamp.now(),
-      });
+      CrudService.update(TABLE_DB_NAME, editForm?.id, values);
       successHandler('Registro atualizado com sucesso.');
       handleCloseModal();
     } catch (error) {
@@ -42,13 +43,25 @@ export function WorkoutForm({
   };
 
   const onFinish = async (values) => {
-    if (editForm.id) {
+    if (editForm?.id) {
       updateData(values);
     } else {
       createData(values);
     }
     setEditForm({});
   };
+
+  useEffect(() => {
+    if (editForm?.id) {
+      form.setFieldsValue(editForm);
+    } else {
+      form.setFieldsValue({
+        name: '',
+        type: '',
+        url_video: '',
+      });
+    }
+  }, [editForm]);
 
   return (
     <Drawer
@@ -59,12 +72,7 @@ export function WorkoutForm({
       title="Cadastro de exercício"
       visible={visible}
     >
-      <Form
-        hideRequiredMark
-        initialValues={{ ...editForm }}
-        layout="vertical"
-        onFinish={onFinish}
-      >
+      <Form form={form} hideRequiredMark layout="vertical" onFinish={onFinish}>
         <Form.Item
           label="Nome"
           name="name"
@@ -77,17 +85,20 @@ export function WorkoutForm({
           label="Tipo"
           name="type"
           rules={[{ required: true, message: 'Informe o tipo do exercício!' }]}
-          initialValue="PEITO"
         >
-          <Select placeholder="Selecione uma opção" defaultActiveFirstOption>
+          <Select placeholder="Selecione uma opção">
+            <Select.Option value="ABDOMEM">Abdomem</Select.Option>
+            <Select.Option value="BICEPS">Bíceps</Select.Option>
+            <Select.Option value="COSTAS">Costas</Select.Option>
+            <Select.Option value="OMBROS">Ombros</Select.Option>
             <Select.Option value="PEITO">Peito</Select.Option>
             <Select.Option value="PERNA">Perna</Select.Option>
-            <Select.Option value="BICEPS">Bíceps</Select.Option>
+            <Select.Option value="TRICEPS">Tríceps</Select.Option>
           </Select>
         </Form.Item>
 
         <Form.Item label="URL Vídeo Exercício" name="url_video">
-          <Input type="url" />
+          <Input type="url" initialValues="" />
         </Form.Item>
 
         <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>

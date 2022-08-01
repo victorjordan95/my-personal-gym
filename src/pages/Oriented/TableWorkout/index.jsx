@@ -71,7 +71,6 @@ export function TableWorkout() {
   };
 
   const save = async (key) => {
-    debugger;
     try {
       const row = await form.validateFields();
       const newData = [...data];
@@ -88,7 +87,7 @@ export function TableWorkout() {
         setEditingKey('');
       }
     } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+      console.error('Validate Failed:', errInfo);
     }
   };
 

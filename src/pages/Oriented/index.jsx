@@ -55,6 +55,12 @@ export function Oriented() {
     setIsLoading(false);
   };
 
+  const redirectWorkouts = () => {
+    navigate(`/orientados/${id}/treino`, {
+      state: { name: data.name, id },
+    });
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -71,9 +77,14 @@ export function Oriented() {
         title={data?.name}
         subTitle={data?.profession}
         extra={[
-          <Button key="1" type="primary" onClick={showDrawer}>
-            Formulário
-          </Button>,
+          <>
+            <Button key="1" type="primary" onClick={redirectWorkouts}>
+              Treino
+            </Button>
+            <Button key="1" type="secondary" onClick={showDrawer}>
+              Formulário
+            </Button>
+          </>,
         ]}
         footer={
           <Tabs defaultActiveKey="1">

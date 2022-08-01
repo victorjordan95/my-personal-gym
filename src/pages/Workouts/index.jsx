@@ -12,7 +12,7 @@ const TABLE_DB_NAME = 'workouts';
 function Workouts() {
   const navigate = useNavigate();
 
-  const [editForm, setEditForm] = useState({});
+  const [editForm, setEditForm] = useState();
   const [visible, setVisible] = useState(false);
   const [workouts, setWorkouts] = useState([]);
 
@@ -53,12 +53,15 @@ function Workouts() {
       title: 'URL vídeo',
       dataIndex: 'url_video',
       key: 'url_video',
-      render: (text) => (
-        <a href={text} target="_blank" rel="noreferrer">
-          <GoLinkExternal style={{ position: 'relative', top: '2px' }} />{' '}
-          Acessar vídeo
-        </a>
-      ),
+      render: (text) =>
+        text?.length > 0 ? (
+          <a href={text} target="_blank" rel="noreferrer">
+            <GoLinkExternal style={{ position: 'relative', top: '2px' }} />{' '}
+            Acessar vídeo
+          </a>
+        ) : (
+          'Sem vídeo cadastrado'
+        ),
     },
     {
       title: 'Ação',
@@ -98,7 +101,9 @@ function Workouts() {
         editForm={editForm}
         handleCloseModal={handleCloseModal}
         setEditForm={setEditForm}
+        setWorkouts={setWorkouts}
         visible={visible}
+        TABLE_DB_NAME={TABLE_DB_NAME}
       />
     </PageHeader>
   );

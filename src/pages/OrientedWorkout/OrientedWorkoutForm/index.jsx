@@ -315,15 +315,15 @@ export function WorkoutTableForm({
     workoutTypes.map((workoutType) => (
       <>
         <Row gutter={16}>
-          <Col className="gutter-row" span={6}>
+          <Col className="gutter-row" xs={24} md={12}>
             <Typography.Title level={3}>
               Treino: {workoutType.name}
             </Typography.Title>
           </Col>
           <Col
             className="gutter-row"
-            span={8}
-            offset={10}
+            xs={{ span: 24, offset: 0 }}
+            md={{ span: 12, offset: 10 }}
             style={{ textAlign: 'right' }}
           >
             <Space size={18}>

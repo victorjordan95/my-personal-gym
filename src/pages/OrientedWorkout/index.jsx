@@ -10,6 +10,8 @@ import CrudService from '../../services/CrudService';
 import { WorkoutTableForm } from './OrientedWorkoutForm';
 import { errorHandler } from '../../utils/errorHandler';
 
+import * as S from './styles';
+
 const { TabPane } = Tabs;
 
 export function OrientedWorkout() {
@@ -187,7 +189,8 @@ export function OrientedWorkout() {
         <Breadcrumb.Item>Treinos</Breadcrumb.Item>
       </Breadcrumb>
 
-      <Tabs
+      <S.WorkoutTab
+        className="testeee"
         activeKey={activeWeek}
         onChange={(activeKey) => handleChangeWeek(activeKey)}
         tabBarExtraContent={
@@ -212,7 +215,7 @@ export function OrientedWorkout() {
             />
           </TabPane>
         ))}
-      </Tabs>
+      </S.WorkoutTab>
     </>
   );
 }

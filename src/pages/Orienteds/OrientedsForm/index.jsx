@@ -7,24 +7,33 @@ import {
   InputNumber,
   Radio,
   Row,
+  Select,
   Space,
 } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { useEffect, useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { addDoc, collection } from 'firebase/firestore';
+import { useContext, useEffect, useState } from 'react';
+import { auth, db } from '../../../config/firebase';
+
+import userContext from '../../../contexts/userContext';
 
 import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
 
 export function OrientedsForm({
-  visible,
-  handleCloseModal,
   editForm,
+  handleCloseModal,
+  isEditable = true,
+  setData,
   setEditForm,
   TABLE_DB_NAME,
-  isEditable = true,
+  visible,
 }) {
+  const loggedUser = useContext(userContext);
   const [formValues, setFormValues] = useState({});
+  const [trainers, setTrainers] = useState([]);
 
   const createData = async (values) => {
     try {
@@ -33,8 +42,32 @@ export function OrientedsForm({
       successHandler(
         'Registro salvo com sucesso. Você pode continuar adicionando outros registros.'
       );
+      setData((prev) => [{ ...values }, ...prev]);
     } catch (error) {
       errorHandler(error);
+    }
+  };
+
+  const registerWithEmailAndPassword = async (values) => {
+    const { email, name } = values;
+    const role = 'ORIENTED';
+    try {
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        'PERSONALTRAINER'
+      );
+      const { user } = res;
+      await addDoc(collection(db, TABLE_DB_NAME), {
+        uid: user.uid,
+        name,
+        role,
+        email,
+        trainerId: loggedUser.id,
+      });
+      createData(values);
+    } catch (err) {
+      errorHandler(err.message);
     }
   };
 
@@ -52,13 +85,24 @@ export function OrientedsForm({
     if (editForm?.id) {
       updateData(values);
     } else {
-      createData(values);
+      registerWithEmailAndPassword(values);
     }
     setEditForm({});
   };
 
+  const getTrainers = async () => {
+    try {
+      const data = await CrudService.getAll('users');
+      const tr = data.filter((user) => user.role === 'TRAINER');
+      setTrainers(tr);
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
+
   useEffect(() => {
     setFormValues(editForm);
+    getTrainers();
   }, [editForm]);
 
   return (
@@ -77,6 +121,22 @@ export function OrientedsForm({
         onFinish={onFinish}
         disabled={!isEditable}
       >
+        <Form.Item
+          label="Treinador"
+          name="trainer"
+          rules={[
+            { required: true, message: 'Informe o treinador do usuário!' },
+          ]}
+        >
+          <Select placeholder="Selecione uma opção">
+            {trainers.map((trainer) => (
+              <Select.Option key={trainer.id} value={trainer.id}>
+                {trainer.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
         <Form.Item
           label="Nome"
           name="name"

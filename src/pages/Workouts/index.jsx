@@ -9,7 +9,7 @@ import { WorkoutForm } from './WorkoutForm';
 
 const TABLE_DB_NAME = 'workouts';
 
-function Workouts() {
+export function Workouts() {
   const navigate = useNavigate();
 
   const [editForm, setEditForm] = useState();
@@ -108,5 +108,3 @@ function Workouts() {
     </PageHeader>
   );
 }
-
-export default Workouts;

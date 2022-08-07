@@ -1,22 +1,34 @@
 import { Button, PageHeader, Space, Table } from 'antd';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import userContext from '../../contexts/userContext';
 
 import CrudService from '../../services/CrudService';
-import { OrientedsForm } from './OrientedsForm';
+import { errorHandler } from '../../utils/errorHandler';
+import { successHandler } from '../../utils/successHandler';
+import { WorkoutForm } from './WorkoutForm';
 
-export function Orienteds() {
+const TABLE_DB_NAME = 'users';
+const ROLES = {
+  ADMIN: 'Administrador',
+  TRAINER: 'Personal Trainer',
+  ORIENTED: 'Aluno',
+};
+
+export function Users() {
   const navigate = useNavigate();
-  const user = useContext(userContext);
 
-  const [editForm, setEditForm] = useState({});
+  const [editForm, setEditForm] = useState();
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
-  const TABLE_DB_NAME = `orienteds`;
 
   const remove = (record) => {
-    CrudService.delete(TABLE_DB_NAME, record.id);
+    try {
+      CrudService.delete(TABLE_DB_NAME, record.id);
+      setData((prev) => prev.filter((item) => item.id !== record.id));
+      successHandler();
+    } catch (error) {
+      errorHandler(error.message);
+    }
   };
 
   const showDrawer = (record) => {
@@ -30,13 +42,8 @@ export function Orienteds() {
   };
 
   const getData = async () => {
-    const idLocalStorage = JSON.parse(
-      localStorage.getItem('@personal-gym')
-    )?.id;
-    const userId = user?.user?.id || idLocalStorage;
-    const dataList = await CrudService.getAll(TABLE_DB_NAME);
-    const myOrienteds = dataList.filter((item) => item.trainer === userId);
-    setData(myOrienteds);
+    const works = await CrudService.getAll(TABLE_DB_NAME);
+    setData(works);
   };
 
   const columns = [
@@ -44,17 +51,15 @@ export function Orienteds() {
       title: 'Nome',
       dataIndex: 'name',
       key: 'name',
+      onFilter: (value, record) => record.name.indexOf(value) === 0,
+      sorter: (a, b) => a.name.length - b.name.length,
       sortDirections: ['descend'],
     },
     {
-      title: 'Peso',
-      dataIndex: 'weight',
-      key: 'weight',
-    },
-    {
-      title: 'Altura',
-      dataIndex: 'height',
-      key: 'height',
+      title: 'Tipo usuário',
+      dataIndex: 'role',
+      key: 'role',
+      render: (text) => <span>{ROLES[text]}</span>,
     },
     {
       title: 'Ação',
@@ -80,31 +85,23 @@ export function Orienteds() {
     <PageHeader
       ghost={false}
       onBack={() => navigate(-1)}
-      title="Alunos"
-      subTitle="Lista de alunos"
+      title="Usuários"
+      subTitle="Lista de usuários cadastrados"
       extra={[
         <Button type="primary" onClick={showDrawer}>
           Cadastrar novo
         </Button>,
       ]}
     >
-      <Table
-        dataSource={data}
-        columns={columns}
-        onRow={(record) => ({
-          onClick: () => {
-            navigate(`/orientados/${record.id}`);
-          },
-        })}
-      />
+      <Table dataSource={data} columns={columns} />
 
-      <OrientedsForm
+      <WorkoutForm
         editForm={editForm}
         handleCloseModal={handleCloseModal}
-        setEditForm={setEditForm}
-        visible={visible}
         setData={setData}
+        setEditForm={setEditForm}
         TABLE_DB_NAME={TABLE_DB_NAME}
+        visible={visible}
       />
     </PageHeader>
   );

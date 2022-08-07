@@ -15,4 +15,14 @@ export const WorkoutTab = styled(Tabs)`
       margin-bottom: 24px;
     }
   }
+  .actions-btn {
+    margin-bottom: 24px;
+    @media (min-width: ${(props) => props.theme.breakpoints.md}) {
+      text-align: right;
+    }
+  }
+
+  .ant-collapse-content-box {
+    padding: 0;
+  }
 `;

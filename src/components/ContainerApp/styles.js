@@ -27,6 +27,8 @@ export const Wrapper = styled(Layout.Content)`
   background-size: contain;
   padding: 24px;
   max-width: 100vw;
+  overflow-y: scroll;
+  max-height: calc(100vh - 60px);
 
   .ant-table-content {
     overflow-x: auto;
@@ -34,6 +36,7 @@ export const Wrapper = styled(Layout.Content)`
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-height: calc(100vh);
     padding: 48px 24px;
   }
 
@@ -44,11 +47,13 @@ export const Wrapper = styled(Layout.Content)`
 
 export const MobileMenu = styled.nav`
   background: ${({ theme }) => theme.colors.primary.main};
+  bottom: 0;
   color: #fff;
   display: flex;
   height: 60px;
   justify-content: space-between;
   padding: 8px 16px;
+  position: fixed;
   width: 100vw;
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     display: none;

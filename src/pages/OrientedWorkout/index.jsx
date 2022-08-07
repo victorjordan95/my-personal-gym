@@ -125,6 +125,7 @@ export function OrientedWorkout() {
   async function getWeeks() {
     try {
       const weeksData = await CrudService.getAll(TABLE_DB_NAME);
+      console.log(weeksData);
       if (weeksData.length !== 0) {
         setWeeks(
           weeksData.sort((a, b) => a.createdAt.seconds - b.createdAt.seconds)

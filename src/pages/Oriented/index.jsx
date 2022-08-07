@@ -14,15 +14,11 @@ import Loader from '../../components/Loader';
 
 import CrudService from '../../services/CrudService';
 import { OrientedsForm } from '../Orienteds/OrientedsForm';
+import { EvolutionOriented } from './EvolutionOriented';
 
 import * as S from './styles';
-import { TableWorkout } from './TableWorkout';
 
 const { TabPane } = Tabs;
-
-function OrientedWorkouts() {
-  return <p>tab1</p>;
-}
 
 const TABLE_DB_NAME = `orienteds`;
 export function Oriented() {
@@ -88,11 +84,8 @@ export function Oriented() {
         ]}
         footer={
           <Tabs defaultActiveKey="1">
-            <TabPane tab="Details" key="1">
-              <TableWorkout />
-            </TabPane>
-            <TabPane tab="Rule" key="2">
-              <OrientedWorkouts />
+            <TabPane tab="Evolução peso" key="1">
+              <EvolutionOriented />
             </TabPane>
           </Tabs>
         }
@@ -100,7 +93,7 @@ export function Oriented() {
         <div className="content">
           <div className="main">
             <Descriptions size="small" column={2}>
-              <Descriptions.Item label="Peso">
+              <Descriptions.Item label="Peso inicial">
                 {data?.weight} kg
               </Descriptions.Item>
               <Descriptions.Item label="Objetivo">
@@ -111,12 +104,13 @@ export function Oriented() {
                 {data?.height} m
               </Descriptions.Item>
               <Descriptions.Item label="Início">
-                {data?.createdAt?.toDate().toLocaleDateString('en-GB')}
+                {data?.createdAt?.toDate().toLocaleDateString('pt-BR')}
               </Descriptions.Item>
             </Descriptions>
           </div>
         </div>
       </PageHeader>
+
       <OrientedsForm
         editForm={editForm}
         handleCloseModal={handleCloseModal}

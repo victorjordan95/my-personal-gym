@@ -3,6 +3,7 @@
 import {
   Button,
   Col,
+  Collapse,
   Divider,
   Form,
   Popconfirm,
@@ -201,6 +202,7 @@ export function WorkoutTableForm({
       title: 'Exercício',
       dataIndex: 'name',
       editable: true,
+      fixed: 'left',
       render: (_, record) =>
         record?.url_video ? (
           <a href={record?.url_video} target="_blank" rel="noreferrer">
@@ -301,6 +303,12 @@ export function WorkoutTableForm({
     };
   });
 
+  const rowSelection = {
+    getCheckboxProps: (record) => ({
+      name: record.name,
+    }),
+  };
+
   async function getWorkouts() {
     const response = await CrudService.getAll('/workouts');
     setWorkoutsRegistered(response);
@@ -321,10 +329,9 @@ export function WorkoutTableForm({
             </Typography.Title>
           </Col>
           <Col
-            className="gutter-row"
+            className="gutter-row actions-btn"
             xs={{ span: 24, offset: 0 }}
-            md={{ span: 12, offset: 10 }}
-            style={{ textAlign: 'right' }}
+            md={{ span: 12, offset: 0 }}
           >
             <Space size={18}>
               <Button
@@ -341,20 +348,29 @@ export function WorkoutTableForm({
           </Col>
         </Row>
 
-        <Form form={form} component={false}>
-          <Table
-            components={{
-              body: {
-                cell: EditableCell,
-              },
-            }}
-            bordered
-            columns={mergedColumns}
-            dataSource={workoutType?.workouts}
-            pagination={{ hideOnSinglePage: true }}
-            rowClassName="editable-row"
-          />
-        </Form>
+        <Collapse collapsible="header" defaultActiveKey={['1']}>
+          <Collapse.Panel
+            header={`Treino: ${workoutType.name} - marque no ✅ os exercícios já feitos!`}
+            key="1"
+          >
+            <Form form={form} component={false}>
+              <Table
+                components={{
+                  body: {
+                    cell: EditableCell,
+                  },
+                }}
+                rowSelection={rowSelection}
+                bordered
+                columns={mergedColumns}
+                dataSource={workoutType?.workouts}
+                pagination={{ hideOnSinglePage: true }}
+                rowClassName="editable-row"
+              />
+            </Form>
+          </Collapse.Panel>
+        </Collapse>
+
         <Divider />
       </>
     ))

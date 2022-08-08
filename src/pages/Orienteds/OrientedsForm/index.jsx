@@ -13,11 +13,9 @@ import {
 import TextArea from 'antd/lib/input/TextArea';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection } from 'firebase/firestore';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import { auth, db } from '../../../config/firebase';
-
-import userContext from '../../../contexts/userContext';
-
 import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
@@ -31,7 +29,6 @@ export function OrientedsForm({
   TABLE_DB_NAME,
   visible,
 }) {
-  const loggedUser = useContext(userContext);
   const [formValues, setFormValues] = useState({});
   const [trainers, setTrainers] = useState([]);
 
@@ -63,11 +60,12 @@ export function OrientedsForm({
         name,
         role,
         email,
-        trainerId: loggedUser.id,
+        trainerId: values.trainer,
       });
       createData(values);
     } catch (err) {
-      errorHandler(err.message);
+      console.log(err);
+      errorHandler(err);
     }
   };
 
@@ -143,6 +141,14 @@ export function OrientedsForm({
           rules={[{ required: true, message: 'Informe o nome do aluno!' }]}
         >
           <Input type="search" />
+        </Form.Item>
+
+        <Form.Item
+          label="E-mail"
+          name="email"
+          rules={[{ required: true, message: 'Informe o email do aluno!' }]}
+        >
+          <Input type="email" />
         </Form.Item>
 
         <Row gutter={[16, 16]}>

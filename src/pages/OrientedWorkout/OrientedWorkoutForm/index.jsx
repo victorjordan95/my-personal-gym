@@ -121,6 +121,7 @@ export function WorkoutTableForm({
       });
     } catch (errInfo) {
       console.error('Validate Failed:', errInfo);
+      errorHandler(errInfo);
     }
     setEditingKey('');
   }
@@ -216,6 +217,7 @@ export function WorkoutTableForm({
       title: 'Observações',
       dataIndex: 'observations',
       editable: true,
+      required: false,
     },
     {
       title: 'Séries',
@@ -231,11 +233,13 @@ export function WorkoutTableForm({
       title: 'Carga',
       dataIndex: 'weight',
       editable: true,
+      required: false,
     },
     {
       title: 'Descanso',
       dataIndex: 'rest',
       editable: true,
+      isLastInput: true,
     },
     {
       title: 'Ação',
@@ -246,14 +250,12 @@ export function WorkoutTableForm({
           <span>
             <Typography.Link
               onClick={() => handleConfirmClick(record)}
-              style={{
-                marginRight: 8,
-              }}
+              style={{ marginRight: 8 }}
             >
-              Save
+              Salvar
             </Typography.Link>
             <Popconfirm title="Deseja mesmo cancelar?" onConfirm={cancel}>
-              <span>Cancel</span>
+              <span>Cancelar</span>
             </Popconfirm>
           </span>
         ) : (

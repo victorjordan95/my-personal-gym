@@ -9,11 +9,11 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Users } from './pages/Users/index ';
 import { Workouts } from './pages/Workouts';
 
-export default function AppRoutes() {
+export default function AppRoutes({ user }) {
   return (
     <Routes>
       <Route path="/" exact element={<Login />} />
-      <Route element={<ProtectedRoute user={{ id: 1, user: 'victor' }} />}>
+      <Route element={<ProtectedRoute user={user} />}>
         <Route path="/inicio" exact element={<Home />} />
         <Route path="/orientados" exact element={<Orienteds />} />
         <Route path="/orientados/:id" exact element={<Oriented />} />

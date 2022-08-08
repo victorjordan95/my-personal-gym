@@ -13,8 +13,12 @@ export function EditableCell({
   children,
   workouts,
   onChange,
+  required,
   ...restProps
 }) {
+  const nonRequiredInputs = ['observations'];
+  const isNonRequiredInput = nonRequiredInputs.includes(dataIndex);
+
   const inputNode =
     inputType === 'select' ? (
       <Select
@@ -47,7 +51,7 @@ export function EditableCell({
           }}
           rules={[
             {
-              required: true,
+              required: !isNonRequiredInput,
               message: `Insira ${title}!`,
             },
           ]}

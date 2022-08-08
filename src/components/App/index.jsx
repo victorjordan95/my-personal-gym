@@ -41,7 +41,7 @@ function App() {
     <ThemeProvider theme={defaultTheme}>
       <userContext.Provider value={contextValue}>
         <GlobalStyle />
-        <AppRoutes />
+        <AppRoutes user={loggedUser} />
       </userContext.Provider>
     </ThemeProvider>
   );

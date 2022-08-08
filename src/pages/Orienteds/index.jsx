@@ -1,9 +1,11 @@
 import { Button, PageHeader, Space, Table } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../../components/Loader';
 import userContext from '../../contexts/userContext';
 
 import CrudService from '../../services/CrudService';
+import { errorHandler } from '../../utils/errorHandler';
 import { OrientedsForm } from './OrientedsForm';
 
 export function Orienteds() {
@@ -12,6 +14,7 @@ export function Orienteds() {
 
   const [editForm, setEditForm] = useState({});
   const [visible, setVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
   const TABLE_DB_NAME = `orienteds`;
 
@@ -34,9 +37,14 @@ export function Orienteds() {
       localStorage.getItem('@personal-gym')
     )?.id;
     const userId = user?.user?.id || idLocalStorage;
-    const dataList = await CrudService.getAll(TABLE_DB_NAME);
-    const myOrienteds = dataList.filter((item) => item.trainer === userId);
-    setData(myOrienteds);
+    try {
+      const dataList = await CrudService.getAll(TABLE_DB_NAME);
+      const myOrienteds = dataList.filter((item) => item.trainerId === userId);
+      setData(myOrienteds);
+    } catch (error) {
+      errorHandler(error);
+    }
+    setIsLoading(false);
   };
 
   const columns = [
@@ -75,6 +83,10 @@ export function Orienteds() {
   useEffect(() => {
     getData();
   }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <PageHeader

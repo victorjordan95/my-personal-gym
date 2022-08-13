@@ -13,9 +13,11 @@ import {
 import TextArea from 'antd/lib/input/TextArea';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { auth, db } from '../../../config/firebase';
+import { ROLES } from '../../../constants/roles';
+import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
@@ -29,6 +31,7 @@ export function OrientedsForm({
   TABLE_DB_NAME,
   visible,
 }) {
+  const { user } = useContext(userContext);
   const [formValues, setFormValues] = useState({});
   const [trainers, setTrainers] = useState([]);
 
@@ -47,16 +50,16 @@ export function OrientedsForm({
 
   const registerWithEmailAndPassword = async (values) => {
     const { email, name } = values;
-    const role = 'ORIENTED';
+    const role = ROLES.ORIENTED;
     try {
       const res = await createUserWithEmailAndPassword(
         auth,
         email,
         'PERSONALTRAINER'
       );
-      const { user } = res;
+      const us = res?.user;
       await addDoc(collection(db, TABLE_DB_NAME), {
-        uid: user.uid,
+        uid: us.uid,
         name,
         role,
         email,
@@ -64,14 +67,18 @@ export function OrientedsForm({
       });
       createData(values);
     } catch (err) {
-      console.log(err);
       errorHandler(err);
     }
   };
 
   const updateData = async (values) => {
     try {
-      CrudService.update(TABLE_DB_NAME, editForm?.id, values);
+      const resp = await CrudService.update(
+        TABLE_DB_NAME,
+        editForm?.id,
+        values
+      );
+      setEditForm(resp);
       successHandler('Registro atualizado com sucesso.');
       handleCloseModal();
     } catch (error) {
@@ -91,7 +98,7 @@ export function OrientedsForm({
   const getTrainers = async () => {
     try {
       const data = await CrudService.getAll('users');
-      const tr = data.filter((user) => user.role === 'TRAINER');
+      const tr = data.filter((us) => us.role === ROLES.TRAINER);
       setTrainers(tr);
     } catch (error) {
       errorHandler(error);
@@ -119,21 +126,38 @@ export function OrientedsForm({
         onFinish={onFinish}
         disabled={!isEditable}
       >
-        <Form.Item
-          label="Treinador"
-          name="trainer"
-          rules={[
-            { required: true, message: 'Informe o treinador do usuário!' },
-          ]}
-        >
-          <Select placeholder="Selecione uma opção">
-            {trainers.map((trainer) => (
-              <Select.Option key={trainer.id} value={trainer.id}>
-                {trainer.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+        {user.role !== ROLES.ORIENTED && (
+          <>
+            <Form.Item
+              label="Treinador"
+              name="trainer"
+              rules={[
+                { required: true, message: 'Informe o treinador do usuário!' },
+              ]}
+            >
+              <Select placeholder="Selecione uma opção">
+                {trainers.map((trainer) => (
+                  <Select.Option key={trainer.id} value={trainer.id}>
+                    {trainer.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Quantidade de semanas do treino"
+              name="amountOfWeeks"
+              rules={[
+                {
+                  required: true,
+                  message: 'Informe quantas semanas será o treino!',
+                },
+              ]}
+            >
+              <Input type="number" />
+            </Form.Item>
+          </>
+        )}
 
         <Form.Item
           label="Nome"

@@ -1,6 +1,7 @@
 import { Button, PageHeader, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROLES } from '../../constants/roles';
 
 import CrudService from '../../services/CrudService';
 import { errorHandler } from '../../utils/errorHandler';
@@ -8,10 +9,10 @@ import { successHandler } from '../../utils/successHandler';
 import { WorkoutForm } from './WorkoutForm';
 
 const TABLE_DB_NAME = 'users';
-const ROLES = {
-  ADMIN: 'Administrador',
-  TRAINER: 'Personal Trainer',
-  ORIENTED: 'Aluno',
+const ROLES_TEXT = {
+  [ROLES.ADMIN]: 'Administrador',
+  [ROLES.TRAINER]: 'Personal Trainer',
+  [ROLES.ORIENTED]: 'Aluno',
 };
 
 export function Users() {
@@ -59,7 +60,7 @@ export function Users() {
       title: 'Tipo usuário',
       dataIndex: 'role',
       key: 'role',
-      render: (text) => <span>{ROLES[text]}</span>,
+      render: (text) => <span>{ROLES_TEXT[text]}</span>,
     },
     {
       title: 'Ação',

@@ -1,15 +1,38 @@
 import { Button, Checkbox, Form, Input } from 'antd';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useContext } from 'react';
-
 import { useNavigate } from 'react-router-dom';
-import { errorHandler } from '../../../../utils/errorHandler';
+
 import { auth } from '../../../../config/firebase';
+import { ROLES } from '../../../../constants/roles';
 import userContext from '../../../../contexts/userContext';
+import CrudService from '../../../../services/CrudService';
+import { errorHandler } from '../../../../utils/errorHandler';
 
 export function FormLogin({ className }) {
   const user = useContext(userContext);
   const navigate = useNavigate();
+
+  const handleNavigateByRole = ({ role, id }) => {
+    if (role === ROLES.ORIENTED) {
+      navigate(`/orientados/${id}`);
+    } else {
+      navigate('/orientados');
+    }
+  };
+
+  const getUserInfo = async (userData) => {
+    try {
+      const users = await CrudService.getAll('users');
+      const us = users.find((u) => u.uid === userData.id);
+      const saveData = { ...us, ...userData, bdId: us.id };
+      localStorage.setItem('@personal-gym', JSON.stringify(saveData));
+      user.handleUserContext(saveData);
+      handleNavigateByRole({ role: us.role, id: us.id });
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
 
   const logInWithEmailAndPassword = async ({ email, password }) => {
     try {
@@ -20,9 +43,7 @@ export function FormLogin({ className }) {
         token: resp.user.accessToken,
         dispayName: resp.user.displayName,
       };
-      user.handleUserContext(userData);
-      localStorage.setItem('@personal-gym', JSON.stringify(userData));
-      navigate('/treinos');
+      getUserInfo(userData);
     } catch (err) {
       console.error(err);
       errorHandler(err);
@@ -54,7 +75,7 @@ export function FormLogin({ className }) {
       <Form.Item
         label="Senha"
         name="password"
-        rules={[{ required: true, message: 'Insira sua senha!!' }]}
+        rules={[{ required: true, message: 'Insira sua senha!' }]}
       >
         <Input.Password />
       </Form.Item>

@@ -8,11 +8,18 @@ import {
   Table,
   Tabs,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { Timestamp } from 'firebase/firestore';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
+import { ROLES } from '../../constants/roles';
+import userContext from '../../contexts/userContext';
 
 import CrudService from '../../services/CrudService';
+import { checkRedirectUser } from '../../utils/checkRedirectUser';
+import { errorHandler } from '../../utils/errorHandler';
+import { isMe } from '../../utils/isMe';
+import { successHandler } from '../../utils/successHandler';
 import { OrientedsForm } from '../Orienteds/OrientedsForm';
 import { EvolutionOriented } from './EvolutionOriented';
 
@@ -20,9 +27,10 @@ import * as S from './styles';
 
 const { TabPane } = Tabs;
 
-const TABLE_DB_NAME = `orienteds`;
+const TABLE_DB_NAME = `users`;
 export function Oriented() {
   const { id } = useParams();
+  const { user } = useContext(userContext);
   const navigate = useNavigate();
 
   const [editForm, setEditForm] = useState({});
@@ -34,21 +42,19 @@ export function Oriented() {
     CrudService.delete(TABLE_DB_NAME, record.id);
   };
 
-  const showDrawer = (record) => {
-    setEditForm(record);
-    setVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setEditForm({});
-    setVisible(false);
-  };
-
   const getData = async () => {
     const singleData = await CrudService.getById(TABLE_DB_NAME, id);
     setEditForm(singleData);
     setData(singleData);
     setIsLoading(false);
+  };
+
+  const showDrawer = (record) => {
+    setVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setVisible(false);
   };
 
   const redirectWorkouts = () => {
@@ -57,8 +63,39 @@ export function Oriented() {
     });
   };
 
+  const calculateValidDateWorkout = (date) => {
+    const weeks = editForm.amountOfWeeks;
+    const dateWorkout = date.toDate();
+    const dateWorkoutPlusWeeks = new Date(
+      dateWorkout.setDate(dateWorkout.getDate() + Number(weeks) * 7)
+    );
+    return dateWorkoutPlusWeeks.toLocaleDateString('pt-BR');
+  };
+
+  const notifyWorkout = async () => {
+    try {
+      const resp = await CrudService.update(TABLE_DB_NAME, editForm?.id, {
+        ...editForm,
+        hasNewWorkout: true,
+        newWorkoutDate: Timestamp.now(),
+      });
+      setEditForm(resp);
+      successHandler('Treino notificado com sucesso!');
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
+
   useEffect(() => {
-    getData();
+    const canFetch = checkRedirectUser({
+      navigate,
+      role: user?.role,
+      id,
+      bdId: user?.bdId,
+    });
+    if (canFetch) {
+      getData();
+    }
   }, []);
 
   if (isLoading) {
@@ -69,15 +106,19 @@ export function Oriented() {
     <S.CardContainer>
       <PageHeader
         className="site-page-header-responsive"
-        onBack={() => window.history.back()}
         title={data?.name}
         subTitle={data?.profession}
         extra={[
           <>
-            <Button key="1" type="primary" onClick={redirectWorkouts}>
+            {user?.role !== ROLES.ORIENTED && (
+              <Button key="1" type="primary" onClick={notifyWorkout}>
+                Notificar treino
+              </Button>
+            )}
+            <Button key="2" type="primary" onClick={redirectWorkouts}>
               Treino
             </Button>
-            <Button key="1" type="secondary" onClick={showDrawer}>
+            <Button key="3" type="secondary" onClick={showDrawer}>
               Formulário
             </Button>
           </>,
@@ -106,6 +147,12 @@ export function Oriented() {
               <Descriptions.Item label="Início">
                 {data?.createdAt?.toDate().toLocaleDateString('pt-BR')}
               </Descriptions.Item>
+              <Descriptions.Item label="Treino criado em">
+                {data?.newWorkoutDate?.toDate().toLocaleDateString('pt-BR')}
+              </Descriptions.Item>
+              <Descriptions.Item label="Treino válido até">
+                {calculateValidDateWorkout(data?.newWorkoutDate)}
+              </Descriptions.Item>
             </Descriptions>
           </div>
         </div>
@@ -117,7 +164,7 @@ export function Oriented() {
         setEditForm={setEditForm}
         visible={visible}
         TABLE_DB_NAME={TABLE_DB_NAME}
-        isEditable={false}
+        isEditable={isMe(id, user.bdId)}
       />
     </S.CardContainer>
   );

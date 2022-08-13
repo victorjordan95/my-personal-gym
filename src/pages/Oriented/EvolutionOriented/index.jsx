@@ -32,7 +32,7 @@ export function EvolutionOriented() {
         weight: Number(values.weight.replace(',', '.')),
       };
       setChartLoading(true);
-      await CrudService.save(`orienteds/${id}/weight`, parsedValues);
+      await CrudService.save(`users/${id}/weight`, parsedValues);
       handleCloseModal();
       successHandler('Peso adicionado com sucesso.');
       setData((prev) => [{ ...values }, ...prev]);
@@ -48,7 +48,7 @@ export function EvolutionOriented() {
 
   const asyncFetch = async () => {
     try {
-      const res = await CrudService.getAll(`orienteds/${id}/weight`);
+      const res = await CrudService.getAll(`users/${id}/weight`);
       const parsedData = res.map((el) => {
         const date = new Date(el.createdAt.toDate());
         return {

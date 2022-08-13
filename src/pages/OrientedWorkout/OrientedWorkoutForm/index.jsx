@@ -12,11 +12,13 @@ import {
   Table,
   Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import { EditableCell } from '../../../components/EditableCell';
+import { ROLES } from '../../../constants/roles';
+import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
 import { deepFreeze } from '../../../utils/deepFreeze';
 import { errorHandler } from '../../../utils/errorHandler';
@@ -32,6 +34,7 @@ export function WorkoutTableForm({
   const freezedDB = deepFreeze(week);
   const freezeAllWorkouts = deepFreeze(allWorkouts);
 
+  const { user } = useContext(userContext);
   const [form] = Form.useForm();
 
   const [editingKey, setEditingKey] = useState('');
@@ -202,7 +205,7 @@ export function WorkoutTableForm({
     {
       title: 'Exercício',
       dataIndex: 'name',
-      editable: true,
+      editable: user.role === ROLES.TRAINER,
       fixed: 'left',
       render: (_, record) =>
         record?.url_video ? (
@@ -216,18 +219,18 @@ export function WorkoutTableForm({
     {
       title: 'Observações',
       dataIndex: 'observations',
-      editable: true,
+      editable: user.role === ROLES.TRAINER,
       required: false,
     },
     {
       title: 'Séries',
       dataIndex: 'series',
-      editable: true,
+      editable: user.role === ROLES.TRAINER,
     },
     {
       title: 'Repetições',
       dataIndex: 'repetitions',
-      editable: true,
+      editable: user.role === ROLES.TRAINER,
     },
     {
       title: 'Carga',
@@ -238,7 +241,7 @@ export function WorkoutTableForm({
     {
       title: 'Descanso',
       dataIndex: 'rest',
-      editable: true,
+      editable: user.role === ROLES.TRAINER,
       isLastInput: true,
     },
     {
@@ -260,12 +263,14 @@ export function WorkoutTableForm({
           </span>
         ) : (
           <Space>
-            <Typography.Link
-              disabled={editingKey !== ''}
-              onClick={() => handleRemoveExercise(record)}
-            >
-              Remover
-            </Typography.Link>
+            {user.role === ROLES.TRAINER && (
+              <Typography.Link
+                disabled={editingKey !== ''}
+                onClick={() => handleRemoveExercise(record)}
+              >
+                Remover
+              </Typography.Link>
+            )}
 
             <Typography.Link
               disabled={editingKey !== ''}
@@ -330,24 +335,29 @@ export function WorkoutTableForm({
               Treino: {workoutType.name}
             </Typography.Title>
           </Col>
-          <Col
-            className="gutter-row actions-btn"
-            xs={{ span: 24, offset: 0 }}
-            md={{ span: 12, offset: 0 }}
-          >
-            <Space size={18}>
-              <Button
-                onClick={() => handleAddExercise(workoutType.id)}
-                type="primary"
-              >
-                Adicionar exercicio
-              </Button>
+          {user.role === ROLES.TRAINER && (
+            <Col
+              className="gutter-row actions-btn"
+              xs={{ span: 24, offset: 0 }}
+              md={{ span: 12, offset: 0 }}
+            >
+              <Space size={18}>
+                <Button
+                  onClick={() => handleAddExercise(workoutType.id)}
+                  type="primary"
+                >
+                  Adicionar exercicio
+                </Button>
 
-              <Button onClick={() => removeWholeWorkout(workoutType.id)} danger>
-                Remover treino
-              </Button>
-            </Space>
-          </Col>
+                <Button
+                  onClick={() => removeWholeWorkout(workoutType.id)}
+                  danger
+                >
+                  Remover treino
+                </Button>
+              </Space>
+            </Col>
+          )}
         </Row>
 
         <Collapse collapsible="header" defaultActiveKey={['1']}>

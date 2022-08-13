@@ -1,9 +1,9 @@
 import { Button, Drawer, Form, Input, Select, Space } from 'antd';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
 import { useEffect } from 'react';
-import { auth, db } from '../../../config/firebase';
 
+import { auth } from '../../../config/firebase';
+import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
 
@@ -26,7 +26,7 @@ export function WorkoutForm({
         'PERSONALTRAINER'
       );
       const { user } = res;
-      await addDoc(collection(db, `${TABLE_DB_NAME}`), {
+      CrudService.save(`${TABLE_DB_NAME}`, {
         uid: user.uid,
         name,
         role,
@@ -85,6 +85,7 @@ export function WorkoutForm({
           <Select placeholder="Selecione uma opção">
             <Select.Option value="ADMIN">Administrador</Select.Option>
             <Select.Option value="TRAINER">Treinador</Select.Option>
+            <Select.Option value="ORIENTED">Aluno</Select.Option>
           </Select>
         </Form.Item>
 

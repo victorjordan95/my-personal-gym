@@ -16,7 +16,7 @@ export function Orienteds() {
   const [visible, setVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
-  const TABLE_DB_NAME = `orienteds`;
+  const TABLE_DB_NAME = `users`;
 
   const remove = (record) => {
     CrudService.delete(TABLE_DB_NAME, record.id);
@@ -35,8 +35,8 @@ export function Orienteds() {
   const getData = async () => {
     const idLocalStorage = JSON.parse(
       localStorage.getItem('@personal-gym')
-    )?.id;
-    const userId = user?.user?.id || idLocalStorage;
+    )?.bdId;
+    const userId = user?.user?.bdId || idLocalStorage;
     try {
       const dataList = await CrudService.getAll(TABLE_DB_NAME);
       const myOrienteds = dataList.filter((item) => item.trainerId === userId);

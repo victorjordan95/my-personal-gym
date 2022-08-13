@@ -59,7 +59,10 @@ class CrudService {
     const item = doc(db, model, id);
     try {
       await updateDoc(item, { ...data, updatedAt: Timestamp.now() });
-      return true;
+      return {
+        ...data,
+        updatedAt: Timestamp.now(),
+      };
     } catch (err) {
       return err;
     }

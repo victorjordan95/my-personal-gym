@@ -2,6 +2,7 @@
 import {
   Button,
   Descriptions,
+  Modal,
   PageHeader,
   Space,
   Statistic,
@@ -37,6 +38,11 @@ export function Oriented() {
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   const remove = (record) => {
     CrudService.delete(TABLE_DB_NAME, record.id);
@@ -46,6 +52,7 @@ export function Oriented() {
     const singleData = await CrudService.getById(TABLE_DB_NAME, id);
     setEditForm(singleData);
     setData(singleData);
+    setIsModalVisible(singleData.hasNewWorkout);
     setIsLoading(false);
   };
 
@@ -72,18 +79,25 @@ export function Oriented() {
     return dateWorkoutPlusWeeks.toLocaleDateString('pt-BR');
   };
 
-  const notifyWorkout = async () => {
+  const toggleNewWorkout = async (hasNew) => {
     try {
       const resp = await CrudService.update(TABLE_DB_NAME, editForm?.id, {
         ...editForm,
-        hasNewWorkout: true,
+        hasNewWorkout: hasNew,
         newWorkoutDate: Timestamp.now(),
       });
       setEditForm(resp);
-      successHandler('Treino notificado com sucesso!');
+      if (hasNew) {
+        successHandler('Treino notificado com sucesso!');
+      }
     } catch (error) {
       errorHandler(error);
     }
+  };
+
+  const handleOk = () => {
+    toggleNewWorkout(false);
+    setIsModalVisible(false);
   };
 
   useEffect(() => {
@@ -111,7 +125,11 @@ export function Oriented() {
         extra={[
           <>
             {user?.role !== ROLES.ORIENTED && (
-              <Button key="1" type="primary" onClick={notifyWorkout}>
+              <Button
+                key="1"
+                type="primary"
+                onClick={() => toggleNewWorkout(true)}
+              >
                 Notificar treino
               </Button>
             )}
@@ -166,6 +184,20 @@ export function Oriented() {
         TABLE_DB_NAME={TABLE_DB_NAME}
         isEditable={isMe(id, user.bdId)}
       />
+
+      <Modal
+        title="Novo treino na área!"
+        visible={isMe(id, user.bdId) && isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="submit" type="primary" onClick={handleOk}>
+            Entendido
+          </Button>,
+        ]}
+      >
+        {data?.name}, você tem um novo treino para seguir!
+      </Modal>
     </S.CardContainer>
   );
 }

@@ -1,5 +1,6 @@
 import { Menu } from 'antd';
 import { FiLogOut } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 import LogoIcon from '../../Icons/Logo';
 import * as S from './styles';
@@ -16,7 +17,9 @@ export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
       collapsed={collapsed}
       onCollapse={(value) => setCollapsed(value)}
     >
-      <LogoIcon className="logo" />
+      <Link to="inicio" style={{ margin: '0 auto' }}>
+        <LogoIcon className="logo" />
+      </Link>
       <Menu
         theme="dark"
         // defaultSelectedKeys={['1']}
@@ -25,7 +28,6 @@ export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
       />
       <span
         role="link"
-        focusa
         onClick={handleLogout}
         className="app-sider__logout"
         tabIndex={0}

@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
+
 import { ProtectedRoute } from './components/ProtectedRoute/general';
 import { TrainersRoute } from './components/ProtectedRoute/trainers';
-
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { NotFound } from './pages/NotFound';

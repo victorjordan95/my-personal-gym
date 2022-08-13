@@ -17,15 +17,17 @@ class CrudService {
    */
   static async getAll(model) {
     const entries = [];
+    try {
+      const querySnapshot = await getDocs(collection(db, model));
+      querySnapshot.forEach((element) => {
+        const data = element.data();
+        data.id = element.id;
 
-    const querySnapshot = await getDocs(collection(db, model));
-    querySnapshot.forEach((element) => {
-      const data = element.data();
-      data.id = element.id;
-
-      entries.push(data);
-    });
-
+        entries.push(data);
+      });
+    } catch (error) {
+      return error;
+    }
     return entries;
   }
 

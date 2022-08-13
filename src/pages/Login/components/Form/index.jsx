@@ -9,6 +9,10 @@ import userContext from '../../../../contexts/userContext';
 import CrudService from '../../../../services/CrudService';
 import { errorHandler } from '../../../../utils/errorHandler';
 
+import logoImg from '../../../../assets/images/logo.png';
+
+import * as S from '../../styles';
+
 export function FormLogin({ className }) {
   const user = useContext(userContext);
   const navigate = useNavigate();
@@ -55,40 +59,43 @@ export function FormLogin({ className }) {
   };
 
   return (
-    <Form
-      autoComplete="off"
-      className={className}
-      layout="vertical"
-      initialValues={{ remember: true }}
-      name="basic"
-      onFinish={logInWithEmailAndPassword}
-      onFinishFailed={onFinishFailed}
-    >
-      <Form.Item
-        label="E-mail"
-        name="email"
-        rules={[{ required: true, message: 'Insira seu e-mail cadastrado!' }]}
+    <S.FormContainer>
+      <img src={logoImg} alt="Logo" />
+      <Form
+        autoComplete="off"
+        className={className}
+        layout="vertical"
+        initialValues={{ remember: true }}
+        name="basic"
+        onFinish={logInWithEmailAndPassword}
+        onFinishFailed={onFinishFailed}
       >
-        <Input type="email" />
-      </Form.Item>
+        <Form.Item
+          label="E-mail"
+          name="email"
+          rules={[{ required: true, message: 'Insira seu e-mail cadastrado!' }]}
+        >
+          <Input type="email" />
+        </Form.Item>
 
-      <Form.Item
-        label="Senha"
-        name="password"
-        rules={[{ required: true, message: 'Insira sua senha!' }]}
-      >
-        <Input.Password />
-      </Form.Item>
+        <Form.Item
+          label="Senha"
+          name="password"
+          rules={[{ required: true, message: 'Insira sua senha!' }]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-      <Form.Item name="remember" valuePropName="checked">
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
+        <Form.Item name="remember" valuePropName="checked">
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Entrar
-        </Button>
-      </Form.Item>
-    </Form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Entrar
+          </Button>
+        </Form.Item>
+      </Form>
+    </S.FormContainer>
   );
 }

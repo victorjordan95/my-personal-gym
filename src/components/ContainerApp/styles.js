@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { Layout } from 'antd';
+import styled from 'styled-components';
 
 export const AppLayout = styled(Layout)`
   display: grid;
@@ -16,7 +16,6 @@ export const Container = styled(Layout)`
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     max-height: 100vh;
     min-height: 100vh;
-    overflow: scroll;
   }
 `;
 
@@ -27,7 +26,6 @@ export const Wrapper = styled(Layout.Content)`
   background-size: contain;
   padding: 24px;
   max-width: 100vw;
-  overflow-y: scroll;
   max-height: calc(100vh - 60px);
 
   .ant-table-content {

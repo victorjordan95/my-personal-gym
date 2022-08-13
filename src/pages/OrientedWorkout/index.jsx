@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
-/* eslint-disable no-unused-vars */
 import { Breadcrumb, Button, Space, Tabs } from 'antd';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
@@ -12,12 +11,14 @@ import { errorHandler } from '../../utils/errorHandler';
 
 import * as S from './styles';
 import { ROLES } from '../../constants/roles';
+import userContext from '../../contexts/userContext';
 
 const { TabPane } = Tabs;
 
 export function OrientedWorkout() {
   const { id } = useParams();
   const { state } = useLocation();
+  const userCon = useContext(userContext);
   const TABLE_DB_NAME = `users/${id}/treinos`;
 
   const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
@@ -195,7 +196,7 @@ export function OrientedWorkout() {
         activeKey={activeWeek}
         onChange={(activeKey) => handleChangeWeek(activeKey)}
         tabBarExtraContent={
-          user.role === ROLES.ORIENTED && (
+          userCon.user.role === ROLES.TRAINER && (
             <Space>
               <Button onClick={addWeek}>Adicionar semana</Button>
               <Button onClick={addWorkout}>Adicionar treino</Button>

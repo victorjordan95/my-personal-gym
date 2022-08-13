@@ -4,7 +4,6 @@ import {
   Drawer,
   Form,
   Input,
-  InputNumber,
   Radio,
   Row,
   Select,
@@ -116,7 +115,7 @@ export function OrientedsForm({
       key="right"
       onClose={handleCloseModal}
       placement="right"
-      title="Cadastro de aluno"
+      title="Informações do aluno"
       visible={visible}
     >
       <Form
@@ -124,7 +123,6 @@ export function OrientedsForm({
         initialValues={{ ...formValues }}
         layout="vertical"
         onFinish={onFinish}
-        disabled={!isEditable}
       >
         {user.role !== ROLES.ORIENTED && (
           <>
@@ -164,7 +162,7 @@ export function OrientedsForm({
           name="name"
           rules={[{ required: true, message: 'Informe o nome do aluno!' }]}
         >
-          <Input type="search" />
+          <Input disabled={!isEditable} type="search" />
         </Form.Item>
 
         <Form.Item
@@ -172,7 +170,7 @@ export function OrientedsForm({
           name="email"
           rules={[{ required: true, message: 'Informe o email do aluno!' }]}
         >
-          <Input type="email" />
+          <Input disabled={!isEditable} type="email" />
         </Form.Item>
 
         <Row gutter={[16, 16]}>
@@ -182,7 +180,12 @@ export function OrientedsForm({
               name="weight"
               rules={[{ required: true, message: 'Informe o peso do aluno!' }]}
             >
-              <InputNumber placeholder="55.5" style={{ width: '100%' }} />
+              <Input
+                disabled={!isEditable}
+                Number
+                placeholder="55.5"
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -193,7 +196,12 @@ export function OrientedsForm({
                 { required: true, message: 'Informe a altura do aluno!' },
               ]}
             >
-              <InputNumber placeholder="1.70" style={{ width: '100%' }} />
+              <Input
+                disabled={!isEditable}
+                Number
+                placeholder="1.70"
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -203,7 +211,7 @@ export function OrientedsForm({
           name="goal"
           rules={[{ required: true, message: 'Informe o objetivo do aluno!' }]}
         >
-          <Input />
+          <Input disabled={!isEditable} />
         </Form.Item>
 
         <Form.Item
@@ -211,40 +219,38 @@ export function OrientedsForm({
           name="profession"
           rules={[{ required: true, message: 'Informe a profissão do aluno!' }]}
         >
-          <Input />
+          <Input disabled={!isEditable} />
         </Form.Item>
 
         <Form.Item label="Possui dores articulares" name="pains">
-          <Radio.Group value="horizontal">
+          <Radio.Group value="horizontal" disabled={!isEditable}>
             <Radio.Button value="YES">Sim</Radio.Button>
             <Radio.Button value="NO">Não</Radio.Button>
           </Radio.Group>
         </Form.Item>
 
         <Form.Item label="Já realizou cirurgia? Qual?" name="surgery">
-          <Input />
+          <Input disabled={!isEditable} />
         </Form.Item>
 
         <Form.Item label="Uso contínuo de medicamento? Qual?" name="medication">
-          <Input />
+          <Input disabled={!isEditable} />
         </Form.Item>
 
         <Form.Item label="Doenças crônicas" name="diseases">
-          <Input />
+          <Input disabled={!isEditable} />
         </Form.Item>
 
         <Form.Item label="Informação extra" name="extraInformation">
           <TextArea rows={4} disabled={!isEditable} />
         </Form.Item>
 
-        {isEditable && (
-          <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={handleCloseModal}>Cancelar</Button>
-            <Button htmlType="submit" type="primary">
-              Salvar
-            </Button>
-          </Space>
-        )}
+        <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button onClick={handleCloseModal}>Cancelar</Button>
+          <Button htmlType="submit" type="primary">
+            Salvar
+          </Button>
+        </Space>
       </Form>
     </Drawer>
   );

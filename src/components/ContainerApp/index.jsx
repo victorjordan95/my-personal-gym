@@ -1,16 +1,14 @@
 /* eslint-disable no-unused-vars */
-import { Layout } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { BiLineChart } from 'react-icons/bi';
+import { BsPeopleFill } from 'react-icons/bs';
+import { CgGym } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom';
 
-import { CgGym } from 'react-icons/cg';
-import { BsPeopleFill } from 'react-icons/bs';
-import { BiLineChart } from 'react-icons/bi';
-import { SiderApp } from './SiderApp';
-
-import * as S from './styles';
-import userContext from '../../contexts/userContext';
 import { ROLES } from '../../constants/roles';
+import userContext from '../../contexts/userContext';
+import { SiderApp } from './SiderApp';
+import * as S from './styles';
 
 export function ContainerApp({ children }) {
   const navigate = useNavigate();
@@ -49,7 +47,7 @@ export function ContainerApp({ children }) {
     }
     return [
       {
-        key: '1',
+        key: '4',
         icon: <CgGym />,
         onClick: () => navigate(`orientados/${user.bdId}`),
         label: 'Treinos',

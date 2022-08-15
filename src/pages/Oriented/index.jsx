@@ -71,10 +71,12 @@ export function Oriented() {
   };
 
   const calculateValidDateWorkout = (date) => {
+    if (!date) return 'Treino não cadastrado ainda.';
+
     const weeks = editForm.amountOfWeeks;
-    const dateWorkout = date.toDate();
+    const dateWorkout = date?.toDate();
     const dateWorkoutPlusWeeks = new Date(
-      dateWorkout.setDate(dateWorkout.getDate() + Number(weeks) * 7)
+      dateWorkout?.setDate(dateWorkout.getDate() + Number(weeks) * 7)
     );
     return dateWorkoutPlusWeeks.toLocaleDateString('pt-BR');
   };
@@ -170,6 +172,9 @@ export function Oriented() {
               </Descriptions.Item>
               <Descriptions.Item label="Treino válido até">
                 {calculateValidDateWorkout(data?.newWorkoutDate)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Sequência treino">
+                {data?.sequenceWorkout}
               </Descriptions.Item>
             </Descriptions>
           </div>

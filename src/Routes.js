@@ -8,6 +8,7 @@ import { NotFound } from './pages/NotFound';
 import { Oriented } from './pages/Oriented';
 import { Orienteds } from './pages/Orienteds';
 import { OrientedWorkout } from './pages/OrientedWorkout';
+import { Profile } from './pages/Profile';
 import { Users } from './pages/Users/index ';
 import { Workouts } from './pages/Workouts';
 
@@ -25,12 +26,13 @@ export default function AppRoutes({ user }) {
           exact
           element={<OrientedWorkout />}
         />
-      </Route>
+        <Route path="/perfil" exact element={<Profile />} />
 
-      <Route element={<TrainersRoute user={user} />}>
-        <Route path="/orientados" exact element={<Orienteds />} />
-        <Route path="/treinos" exact element={<Workouts />} />
-        <Route path="/usuarios" exact element={<Users />} />
+        <Route element={<TrainersRoute user={user} />}>
+          <Route path="/orientados" exact element={<Orienteds />} />
+          <Route path="/treinos" exact element={<Workouts />} />
+          <Route path="/usuarios" exact element={<Users />} />
+        </Route>
       </Route>
     </Routes>
   );

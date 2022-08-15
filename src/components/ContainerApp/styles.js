@@ -16,6 +16,7 @@ export const Container = styled(Layout)`
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     max-height: 100vh;
     min-height: 100vh;
+    overflow-y: scroll;
   }
 `;
 
@@ -39,7 +40,7 @@ export const Wrapper = styled(Layout.Content)`
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    padding: 60px 37px;
+    padding: 36px;
   }
 `;
 
@@ -50,9 +51,10 @@ export const MobileMenu = styled.nav`
   display: flex;
   height: 60px;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 8px 24px;
   position: fixed;
   width: 100vw;
+  z-index: 999;
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     display: none;
   }

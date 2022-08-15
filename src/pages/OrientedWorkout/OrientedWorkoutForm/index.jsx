@@ -95,7 +95,6 @@ export function WorkoutTableForm({
 
     try {
       const row = await form.validateFields();
-      const newRow = { ...row, ...selectedWorkout };
       const newData = [...(workoutGroup.workouts ?? [])];
       const index = newData.findIndex((item) => record.key === item.key);
       const workoutGroupindex = freezeAllWorkouts[0].workouts.findIndex(
@@ -107,13 +106,15 @@ export function WorkoutTableForm({
       const freezeIndex =
         freezeAllWorkouts[weekIndex].workouts[workoutGroupindex];
 
+      const item = newData[index];
+      const newRow = { ...newData[index], ...row, ...selectedWorkout };
+
       freezeIndex.workouts[index] = {
         ...newRow,
         workoutType: freezeIndex.id,
         key: freezeIndex.workouts[index]?.key || uuidv4(),
         id: freezeIndex.workouts[index]?.id || week.id,
       };
-      const item = newData[index];
 
       setWorkoutTypes(freezeAllWorkouts);
       saveWorkout({

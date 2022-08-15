@@ -101,7 +101,7 @@ export function OrientedWorkout() {
     setIsLoading(false);
   }
 
-  const addWeek = () => {
+  const addWeek = async () => {
     let workouts = [];
     if (weeks.length > 0) {
       workouts = weeks[weeks.length - 1].workouts;
@@ -112,13 +112,13 @@ export function OrientedWorkout() {
       workouts,
     };
     try {
-      const newWeeks = [...weeks, newData];
-      CrudService.save(TABLE_DB_NAME, newData);
+      const weekId = await CrudService.save(TABLE_DB_NAME, newData);
+      const newWeeks = [...weeks, { ...newData, id: weekId }];
       newWeeks.forEach((week) => {
         getExercises(week);
       });
       setWeeks(newWeeks);
-      setActiveWeek(newData.id);
+      setActiveWeek(weekId);
     } catch (error) {
       errorHandler(error);
     }
@@ -192,7 +192,6 @@ export function OrientedWorkout() {
       </Breadcrumb>
 
       <S.WorkoutTab
-        className="testeee"
         activeKey={activeWeek}
         onChange={(activeKey) => handleChangeWeek(activeKey)}
         tabBarExtraContent={

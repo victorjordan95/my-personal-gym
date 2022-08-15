@@ -11,10 +11,9 @@ import {
 } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 
-import { auth, db } from '../../../config/firebase';
+import { auth } from '../../../config/firebase';
 import { ROLES } from '../../../constants/roles';
 import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
@@ -36,12 +35,12 @@ export function OrientedsForm({
 
   const createData = async (values) => {
     try {
-      CrudService.save(TABLE_DB_NAME, values);
+      const id = await CrudService.save(TABLE_DB_NAME, values);
       handleCloseModal();
       successHandler(
         'Registro salvo com sucesso. Você pode continuar adicionando outros registros.'
       );
-      setData((prev) => [{ ...values }, ...prev]);
+      setData((prev) => [{ ...values, id }, ...prev]);
     } catch (error) {
       errorHandler(error);
     }
@@ -56,15 +55,14 @@ export function OrientedsForm({
         email,
         'PERSONALTRAINER'
       );
-      const us = res?.user;
-      await addDoc(collection(db, TABLE_DB_NAME), {
-        uid: us.uid,
+      const userData = {
+        uid: res?.user.uid,
         name,
         role,
         email,
         trainerId: values.trainer,
-      });
-      createData(values);
+      };
+      createData({ ...values, ...userData });
     } catch (err) {
       errorHandler(err);
     }
@@ -153,6 +151,19 @@ export function OrientedsForm({
               ]}
             >
               <Input type="number" />
+            </Form.Item>
+
+            <Form.Item
+              label="Sequência de treino (ABCAB)"
+              name="sequenceWorkout"
+              rules={[
+                {
+                  required: true,
+                  message: 'Informe como será a sequência do treino!',
+                },
+              ]}
+            >
+              <Input />
             </Form.Item>
           </>
         )}

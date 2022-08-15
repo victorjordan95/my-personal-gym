@@ -15,6 +15,16 @@ const GlobalStyle = createGlobalStyle`
       margin-bottom: 36px;
     }
   }
+
+  .ant-dropdown {
+    min-width: 100px!important;
+  }
+
+  .table-point {
+    .ant-table-row {
+      cursor: pointer;
+    }
+  }
 `;
 
 export default GlobalStyle;

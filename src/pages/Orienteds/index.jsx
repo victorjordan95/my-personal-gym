@@ -103,6 +103,7 @@ export function Orienteds() {
       <Table
         dataSource={data}
         columns={columns}
+        className="table-point"
         onRow={(record) => ({
           onClick: () => {
             navigate(`/orientados/${record.id}`);

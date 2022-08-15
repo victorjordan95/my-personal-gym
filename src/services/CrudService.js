@@ -39,12 +39,12 @@ class CrudService {
    */
   static async save(model, data) {
     try {
-      await addDoc(collection(db, model), {
+      const resp = await addDoc(collection(db, model), {
         ...data,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
-      return true;
+      return resp.id;
     } catch (err) {
       return err;
     }

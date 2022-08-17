@@ -29,6 +29,8 @@ export function OrientedWorkout() {
   const [isLoading, setIsLoading] = useState(true);
 
   const addWorkout = async () => {
+    if (weeks.length === 0) return;
+
     const currentlyActiveWeek = workoutTypes.find(
       (week) => week.id === activeWeek
     );
@@ -172,6 +174,20 @@ export function OrientedWorkout() {
     setWeeks(newWeeks);
   }
 
+  function cleanWorkouts() {
+    if (weeks.length === 0) return;
+
+    setIsLoading(true);
+    const promises = [];
+    weeks.forEach((week) => {
+      promises.push(CrudService.delete(TABLE_DB_NAME, week.id));
+    });
+    Promise.all(promises)
+      .then(() => setWeeks([]))
+      .catch((error) => errorHandler(error))
+      .finally(() => setIsLoading(false));
+  }
+
   useEffect(() => {
     getUsername();
     getWeeks();
@@ -198,7 +214,17 @@ export function OrientedWorkout() {
           userCon.user.role === ROLES.TRAINER && (
             <Space>
               <Button onClick={addWeek}>Adicionar semana</Button>
-              <Button onClick={addWorkout}>Adicionar treino</Button>
+              <Button onClick={addWorkout} disabled={weeks.length === 0}>
+                Adicionar treino
+              </Button>
+              <Button
+                onClick={cleanWorkouts}
+                disabled={weeks.length === 0}
+                danger
+                type="primary"
+              >
+                Limpar treinos
+              </Button>
             </Space>
           )
         }

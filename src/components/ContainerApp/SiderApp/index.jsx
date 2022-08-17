@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Dropdown, Menu } from 'antd';
 import { HiOutlineUserCircle } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import LogoIcon from '../../Icons/Logo';
 import * as S from './styles';
@@ -12,25 +12,32 @@ function handleLogout() {
   window.location.href = '/';
 }
 
-const menu = (
-  <Menu
-    items={[
-      {
-        label: 'Perfil',
-        key: '0',
-      },
-      {
-        type: 'divider',
-      },
-      {
-        label: <span onClick={handleLogout}>Sair</span>,
-        key: '1',
-      },
-    ]}
-  />
-);
-
 export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
+  const navigate = useNavigate();
+
+  const handleClickRedirect = (route) => {
+    navigate(route);
+  };
+
+  const menu = (
+    <Menu
+      items={[
+        {
+          label: (
+            <span onClick={() => handleClickRedirect('perfil')}>Perfil</span>
+          ),
+          key: '0',
+        },
+        {
+          type: 'divider',
+        },
+        {
+          label: <span onClick={handleLogout}>Sair</span>,
+          key: '1',
+        },
+      ]}
+    />
+  );
   return (
     <S.AppSider
       collapsible={false}

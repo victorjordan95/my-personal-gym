@@ -20,9 +20,9 @@ export function FormLogin({ className }) {
   const handleNavigateByRole = ({ role, id }) => {
     if (role === ROLES.ORIENTED) {
       navigate(`/orientados/${id}`);
-    } else {
-      navigate('/orientados');
+      return;
     }
+    navigate('/orientados');
   };
 
   const getUserInfo = async (userData) => {

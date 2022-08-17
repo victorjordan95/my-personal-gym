@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import {
+  Breadcrumb,
   Button,
   Descriptions,
   Modal,
@@ -11,7 +12,7 @@ import {
 } from 'antd';
 import { Timestamp } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
 import { ROLES } from '../../constants/roles';
 import userContext from '../../contexts/userContext';
@@ -119,90 +120,99 @@ export function Oriented() {
   }
 
   return (
-    <S.CardContainer>
-      <PageHeader
-        className="site-page-header-responsive"
-        title={data?.name}
-        subTitle={data?.profession}
-        extra={[
-          <>
-            {user?.role !== ROLES.ORIENTED && (
-              <Button
-                key="1"
-                type="primary"
-                onClick={() => toggleNewWorkout(true)}
-              >
-                Notificar treino
+    <>
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/orientados/">Alunos</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Aluno</Breadcrumb.Item>
+      </Breadcrumb>
+
+      <S.CardContainer>
+        <PageHeader
+          className="site-page-header-responsive"
+          title={data?.name}
+          subTitle={data?.profession}
+          extra={[
+            <>
+              {user?.role !== ROLES.ORIENTED && (
+                <Button
+                  key="1"
+                  type="primary"
+                  onClick={() => toggleNewWorkout(true)}
+                >
+                  Notificar treino
+                </Button>
+              )}
+              <Button key="2" type="primary" onClick={redirectWorkouts}>
+                Treino
               </Button>
-            )}
-            <Button key="2" type="primary" onClick={redirectWorkouts}>
-              Treino
-            </Button>
-            <Button key="3" type="secondary" onClick={showDrawer}>
-              Formulário
-            </Button>
-          </>,
-        ]}
-        footer={
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Evolução peso" key="1">
-              <EvolutionOriented />
-            </TabPane>
-          </Tabs>
-        }
-      >
-        <div className="content">
-          <div className="main">
-            <Descriptions size="small" column={2}>
-              <Descriptions.Item label="Peso inicial">
-                {data?.weight} kg
-              </Descriptions.Item>
-              <Descriptions.Item label="Objetivo">
-                {data?.goal}
-              </Descriptions.Item>
+              <Button key="3" type="secondary" onClick={showDrawer}>
+                Formulário
+              </Button>
+            </>,
+          ]}
+          footer={
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="Evolução peso" key="1">
+                <EvolutionOriented />
+              </TabPane>
+            </Tabs>
+          }
+        >
+          <div className="content">
+            <div className="main">
+              <Descriptions size="small" column={2}>
+                <Descriptions.Item label="Peso inicial">
+                  {data?.weight} kg
+                </Descriptions.Item>
+                <Descriptions.Item label="Objetivo">
+                  {data?.goal}
+                </Descriptions.Item>
 
-              <Descriptions.Item label="Altura">
-                {data?.height} m
-              </Descriptions.Item>
-              <Descriptions.Item label="Início">
-                {data?.createdAt?.toDate().toLocaleDateString('pt-BR')}
-              </Descriptions.Item>
-              <Descriptions.Item label="Treino criado em">
-                {data?.newWorkoutDate?.toDate().toLocaleDateString('pt-BR')}
-              </Descriptions.Item>
-              <Descriptions.Item label="Treino válido até">
-                {calculateValidDateWorkout(data?.newWorkoutDate)}
-              </Descriptions.Item>
-              <Descriptions.Item label="Sequência treino">
-                {data?.sequenceWorkout}
-              </Descriptions.Item>
-            </Descriptions>
+                <Descriptions.Item label="Altura">
+                  {data?.height} m
+                </Descriptions.Item>
+                <Descriptions.Item label="Início">
+                  {data?.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                </Descriptions.Item>
+                <Descriptions.Item label="Treino criado em">
+                  {data?.newWorkoutDate?.toDate().toLocaleDateString('pt-BR')}
+                </Descriptions.Item>
+                <Descriptions.Item label="Treino válido até">
+                  {calculateValidDateWorkout(data?.newWorkoutDate)}
+                </Descriptions.Item>
+                <Descriptions.Item label="Sequência treino">
+                  {data?.sequenceWorkout}
+                </Descriptions.Item>
+              </Descriptions>
+            </div>
           </div>
-        </div>
-      </PageHeader>
+        </PageHeader>
 
-      <OrientedsForm
-        editForm={editForm}
-        handleCloseModal={handleCloseModal}
-        setEditForm={setEditForm}
-        visible={visible}
-        TABLE_DB_NAME={TABLE_DB_NAME}
-        isEditable={isMe(id, user.bdId)}
-      />
+        <OrientedsForm
+          editForm={editForm}
+          handleCloseModal={handleCloseModal}
+          setEditForm={setEditForm}
+          visible={visible}
+          TABLE_DB_NAME={TABLE_DB_NAME}
+          isEditable={isMe(id, user.bdId)}
+        />
 
-      <Modal
-        title="Novo treino na área!"
-        visible={isMe(id, user.bdId) && isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="submit" type="primary" onClick={handleOk}>
-            Entendido
-          </Button>,
-        ]}
-      >
-        {data?.name}, você tem um novo treino para seguir!
-      </Modal>
-    </S.CardContainer>
+        <Modal
+          title="Novo treino na área!"
+          visible={isMe(id, user.bdId) && isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          footer={[
+            <Button key="submit" type="primary" onClick={handleOk}>
+              Entendido
+            </Button>,
+          ]}
+        >
+          {data?.name}, você tem um novo treino para seguir!
+        </Modal>
+      </S.CardContainer>
+    </>
   );
 }

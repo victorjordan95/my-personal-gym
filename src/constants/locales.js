@@ -1,0 +1,21 @@
+export default {
+  table: {
+    filterTitle: 'Filtros',
+    filterConfirm: 'OK',
+    filterReset: 'Resetar',
+    filterEmptyText: 'Nenhum dado para filtrar',
+    filterCheckall: 'Selecionar todos',
+    filterSearchPlaceholder: 'Pesquisar',
+    emptyText: 'Nenhum dado para exibir',
+    selectAll: 'Selecionar todos',
+    selectInvert: 'Inverter seleção',
+    selectNone: 'Nenhum dado selecionado',
+    selectionAll: 'Selecionar todos',
+    sortTitle: 'Ordenar',
+    expand: 'Expandir',
+    collapse: 'Recolher',
+    triggerDesc: 'Ordem descendente',
+    triggerAsc: 'Ordem ascendente',
+    cancelSort: 'Cancelar ordenação',
+  },
+};

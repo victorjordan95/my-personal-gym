@@ -6,6 +6,7 @@ import { GoLinkExternal } from 'react-icons/go';
 
 import CrudService from '../../services/CrudService';
 import { WorkoutForm } from './WorkoutForm';
+import locales from '../../constants/locales';
 
 const TABLE_DB_NAME = 'workouts';
 
@@ -41,13 +42,25 @@ export function Workouts() {
       dataIndex: 'name',
       key: 'name',
       onFilter: (value, record) => record.name.indexOf(value) === 0,
-      sorter: (a, b) => a.name.length - b.name.length,
+      sorter: (a, b) => a.name.localeCompare(b.name),
       sortDirections: ['descend'],
     },
     {
       title: 'Tipo de exercício',
       dataIndex: 'type',
       key: 'type',
+      filters: [
+        { text: 'Abdomem', value: 'ABDOMEM' },
+        { text: 'Bíceps', value: 'BICEPS' },
+        { text: 'Costas', value: 'COSTAS' },
+        { text: 'Ombros', value: 'OMBROS' },
+        { text: 'Peito', value: 'PEITO' },
+        { text: 'Perna', value: 'PERNA' },
+        { text: 'Tríceps', value: 'TRICEPS' },
+      ],
+      filterMode: 'tree',
+      filterSearch: true,
+      onFilter: (value, record) => record.type.startsWith(value),
     },
     {
       title: 'URL vídeo',
@@ -62,6 +75,18 @@ export function Workouts() {
         ) : (
           'Sem vídeo cadastrado'
         ),
+      filters: [
+        { text: 'Com vídeo', value: true },
+        { text: 'Sem vídeo', value: false },
+      ],
+      filterMode: 'tree',
+      filterSearch: true,
+      onFilter: (value, record) => {
+        if (value) {
+          return record.url_video?.length > 0;
+        }
+        return !record.url_video;
+      },
     },
     {
       title: 'Ação',
@@ -95,7 +120,7 @@ export function Workouts() {
         </Button>,
       ]}
     >
-      <Table dataSource={workouts} columns={columns} />
+      <Table dataSource={workouts} columns={columns} locale={locales.table} />
 
       <WorkoutForm
         editForm={editForm}

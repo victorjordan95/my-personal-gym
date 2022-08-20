@@ -4,6 +4,7 @@ export default {
     light: '#fff',
     textTitle: '#2F2F2F',
     text: '#2f3640',
+    clickableText: '#ff8c00',
 
     primary: {
       main: '#192a56',

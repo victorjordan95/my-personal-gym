@@ -4,7 +4,7 @@ import styled from 'styled-components';
 export const AppSider = styled(Sider)`
   border-radius: 0;
   display: none;
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
     display: initial;
 
     .logo {

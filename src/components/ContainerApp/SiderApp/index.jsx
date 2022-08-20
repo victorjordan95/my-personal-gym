@@ -38,6 +38,7 @@ export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
       ]}
     />
   );
+
   return (
     <S.AppSider
       collapsible={false}

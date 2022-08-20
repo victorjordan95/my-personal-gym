@@ -6,14 +6,14 @@ export const AppLayout = styled(Layout)`
   margin: 0 auto;
   grid-template-columns: auto;
 
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
     grid-template-columns: 80px auto;
   }
 `;
 
 export const Container = styled(Layout)`
   min-height: calc(100vh - 60px);
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
     max-height: 100vh;
     min-height: 100vh;
     overflow-y: scroll;
@@ -41,31 +41,5 @@ export const Wrapper = styled(Layout.Content)`
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
     padding: 36px;
-  }
-`;
-
-export const MobileMenu = styled.nav`
-  background: ${({ theme }) => theme.colors.primary.main};
-  bottom: 0;
-  color: #fff;
-  display: flex;
-  height: 60px;
-  justify-content: space-between;
-  padding: 8px 24px;
-  position: fixed;
-  width: 100vw;
-  z-index: 999;
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    display: none;
-  }
-`;
-
-export const MobileMenuItem = styled.div`
-  text-align: center;
-  font-size: 12px;
-
-  svg {
-    height: 24px;
-    width: 24px;
   }
 `;

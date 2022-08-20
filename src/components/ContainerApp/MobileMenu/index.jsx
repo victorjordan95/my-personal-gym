@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { FiLogOut } from 'react-icons/fi';
 
 import * as S from './styles';
 
@@ -7,6 +8,11 @@ export function MobileMenu({ linksMenu }) {
   const linksMenuMobile = linksMenu.filter((link) => link.showInMobile);
   const linksDrawer = linksMenu.filter((link) => !link.showInMobile);
   const [visible, setVisible] = useState(false);
+
+  function handleLogout() {
+    localStorage.removeItem('token');
+    window.location.href = '/';
+  }
 
   const handleOpenMenu = () => {
     setVisible(true);
@@ -49,6 +55,10 @@ export function MobileMenu({ linksMenu }) {
             {link.icon} {link.label}
           </S.MenuLink>
         ))}
+        <S.MenuLink onClick={() => handleLogout()} isLast>
+          <FiLogOut />
+          Sair
+        </S.MenuLink>
       </S.MobileMenuDrawer>
     </>
   );

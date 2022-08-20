@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { BiLineChart } from 'react-icons/bi';
+
 import { BsPeopleFill } from 'react-icons/bs';
-import { CgGym } from 'react-icons/cg';
+import { CgGym, CgProfile } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom';
 
 import { ROLES } from '../../constants/roles';
@@ -54,10 +55,19 @@ export function ContainerApp({ children }) {
     return [
       {
         key: '4',
+        icon: <CgProfile />,
+        onClick: () => navigate(`perfil`),
+        label: 'Meu perfil',
+        url: '/perfil',
+        showInMobile: true,
+      },
+      {
+        key: '5',
         icon: <CgGym />,
         onClick: () => navigate(`orientados/${user.bdId}`),
         label: 'Treinos',
         url: '/treinos',
+        showInMobile: true,
       },
     ];
   };
@@ -69,8 +79,6 @@ export function ContainerApp({ children }) {
     ...orientedsRoles(),
     ...getCommonRoles(),
   ].sort((a, b) => a.key - b.key);
-
-  console.log(linksMenu);
 
   return (
     <S.AppLayout>

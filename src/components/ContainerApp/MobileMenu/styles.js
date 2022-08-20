@@ -31,17 +31,22 @@ export const MobileMenuItem = styled.div`
 
 export const MobileMenuDrawer = styled(Drawer)`
   .ant-drawer-body {
+    display: flex;
+    flex-flow: column wrap;
     padding: 0;
   }
 `;
 
 export const MenuLink = styled.div`
   align-items: center;
-  border-bottom: 1px solid rgba(25 42 86 / 39%);
+  border-bottom: 1px solid #f0f0f0;
+  border-top: ${({ isLast }) => (isLast ? '1px solid #f0f0f0' : 'transparent')};
+  background: ${({ isLast }) => (isLast ? '#f9f9f9' : 'transparent')};
   color: ${({ theme }) => theme.colors.secondary.main};
   display: flex;
-  font-size: 16px;
   flex-flow: row nowrap;
+  font-size: 16px;
+  margin-top: ${({ isLast }) => (isLast ? 'auto' : '0')};
   padding: 12px 24px;
 
   svg {

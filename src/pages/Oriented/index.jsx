@@ -57,7 +57,7 @@ export function Oriented() {
     setIsLoading(false);
   };
 
-  const showDrawer = (record) => {
+  const showDrawer = () => {
     setVisible(true);
   };
 
@@ -162,7 +162,7 @@ export function Oriented() {
         >
           <div className="content">
             <div className="main">
-              <Descriptions size="small" column={2}>
+              <Descriptions size="small" column={{ xs: 1, md: 2 }}>
                 <Descriptions.Item label="Peso inicial">
                   {data?.weight} kg
                 </Descriptions.Item>

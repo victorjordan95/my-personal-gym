@@ -1,17 +1,19 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-no-bind */
-import { Breadcrumb, Button, Space, Tabs } from 'antd';
+import { Breadcrumb, Button, Col, Row, Space, Tabs } from 'antd';
 import { useContext, useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import Loader from '../../components/Loader';
 import { workoustIds } from '../../constants/workoutsNamesById';
 import CrudService from '../../services/CrudService';
-import { WorkoutTableForm } from './OrientedWorkoutForm';
 import { errorHandler } from '../../utils/errorHandler';
+import { WorkoutTableForm } from './OrientedWorkoutForm';
 
-import * as S from './styles';
 import { ROLES } from '../../constants/roles';
 import userContext from '../../contexts/userContext';
+import { AnnotationModal } from './AnnotationModal';
+import * as S from './styles';
 
 const { TabPane } = Tabs;
 
@@ -21,10 +23,12 @@ export function OrientedWorkout() {
   const userCon = useContext(userContext);
   const TABLE_DB_NAME = `users/${id}/treinos`;
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
   const [workoutTypes, setWorkoutTypes] = useState([]);
   const [activeWeek, setActiveWeek] = useState(1);
   const [user, setUser] = useState({ name: '', id: '' });
+  const [workoutDescription, setWorkoutDescription] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -153,6 +157,10 @@ export function OrientedWorkout() {
     }
   }
 
+  const showAnnotationModal = () => {
+    setIsModalVisible(true);
+  };
+
   function handleChangeWeek(activeKey) {
     setActiveWeek(activeKey);
   }
@@ -188,9 +196,19 @@ export function OrientedWorkout() {
       .finally(() => setIsLoading(false));
   }
 
+  async function getAnnotations() {
+    try {
+      const annotation = await CrudService.getAll(`users/${id}/annotations`);
+      setWorkoutDescription(annotation[0]);
+    } catch (error) {
+      errorHandler(error);
+    }
+  }
+
   useEffect(() => {
     getUsername();
     getWeeks();
+    getAnnotations();
   }, []);
 
   if (isLoading) {
@@ -207,12 +225,23 @@ export function OrientedWorkout() {
         <Breadcrumb.Item>Treinos</Breadcrumb.Item>
       </Breadcrumb>
 
+      <Row>
+        <Col span={24}>
+          <p>
+            <span>Descrição do treino:</span> {workoutDescription?.description}
+          </p>
+        </Col>
+      </Row>
+
       <S.WorkoutTab
         activeKey={activeWeek}
         onChange={(activeKey) => handleChangeWeek(activeKey)}
         tabBarExtraContent={
           userCon.user.role === ROLES.TRAINER && (
             <Space>
+              <Button type="primary" onClick={showAnnotationModal}>
+                Anotação
+              </Button>
               <Button onClick={addWeek}>Adicionar semana</Button>
               <Button onClick={addWorkout} disabled={weeks.length === 0}>
                 Adicionar treino
@@ -245,6 +274,14 @@ export function OrientedWorkout() {
           </TabPane>
         ))}
       </S.WorkoutTab>
+
+      <AnnotationModal
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        setWorkoutDes={setWorkoutDescription}
+        TABLE_DB_NAME={`users/${id}/annotations`}
+        workoutDesc={workoutDescription}
+      />
     </>
   );
 }

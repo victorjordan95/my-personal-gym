@@ -22,7 +22,7 @@ export function FormLogin({ className }) {
       navigate(`/orientados/${id}`);
       return;
     }
-    navigate('/orientados');
+    navigate('/inicio');
   };
 
   const getUserInfo = async (userData) => {

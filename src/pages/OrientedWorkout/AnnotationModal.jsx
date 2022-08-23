@@ -17,7 +17,6 @@ export function AnnotationModal({
 
   const handleSave = async () => {
     try {
-      debugger;
       let resp;
       if (workoutDesc?.id) {
         resp = await CrudService.update(TABLE_DB_NAME, workoutDesc.id, {

@@ -49,6 +49,21 @@ export function Oriented() {
     CrudService.delete(TABLE_DB_NAME, record.id);
   };
 
+  const calculateDistanceInDays = (date1) => {
+    if (!date1) return 0;
+
+    const weeks = editForm?.amountOfWeeks;
+    const parsedDate = date1?.toDate();
+    const workoutDate = new Date(
+      parsedDate?.setDate(parsedDate.getDate() + Number(weeks) * 7)
+    );
+    const date2 = new Date();
+    const diffTime = Math.abs(date2 - workoutDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return ` - termina em ${diffDays} ${diffDays > 1 ? 'dias' : 'dia'}`;
+  };
+
   const getData = async () => {
     const singleData = await CrudService.getById(TABLE_DB_NAME, id);
     setEditForm(singleData);
@@ -181,6 +196,7 @@ export function Oriented() {
                 </Descriptions.Item>
                 <Descriptions.Item label="Treino válido até">
                   {calculateValidDateWorkout(data?.newWorkoutDate)}
+                  {calculateDistanceInDays(data?.newWorkoutDate)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Sequência treino">
                   {data?.sequenceWorkout}

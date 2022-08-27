@@ -15,6 +15,7 @@ export function EvolutionOriented() {
   const [data, setData] = useState([]);
   const [visible, setVisible] = useState(false);
   const [chartLoading, setChartLoading] = useState(false);
+  const [configChart, setConfigChart] = useState({});
 
   const handleCloseModal = () => {
     form.resetFields();
@@ -48,8 +49,12 @@ export function EvolutionOriented() {
 
   const asyncFetch = async () => {
     try {
+      setChartLoading(true);
       const res = await CrudService.getAll(`users/${id}/weight`);
-      const parsedData = res.map((el) => {
+      const sortedData = res.sort(
+        (a, b) => a.createdAt.toDate() - b.createdAt.toDate()
+      );
+      const parsedData = sortedData.map((el) => {
         const date = new Date(el.createdAt.toDate());
         return {
           weight: Number(el.weight),
@@ -59,26 +64,36 @@ export function EvolutionOriented() {
           )}-${String(date.getDate()).padStart(2, '0')}`,
         };
       });
-      setData(parsedData.sort((a, b) => a.Date > b.Date));
+
+      setData(parsedData.sort((a, b) => new Date(a.Date) > new Date(b.Date)));
+      const weightMedia =
+        parsedData.reduce((acc, curr) => acc + curr.weight, 0) /
+        parsedData.length;
+
+      const config = {
+        data,
+        padding: 'auto',
+        xField: 'Date',
+        yField: 'weight',
+        xAxis: {
+          type: 'timeCat',
+          // tickCount: 5,
+        },
+        yAxis: {
+          min: weightMedia - 5,
+          max: weightMedia + 5,
+        },
+      };
+      setConfigChart(config);
     } catch (error) {
       errorHandler(error);
     }
+    setChartLoading(false);
   };
 
   useEffect(() => {
     asyncFetch();
   }, []);
-
-  const config = {
-    data,
-    padding: 'auto',
-    xField: 'Date',
-    yField: 'weight',
-    xAxis: {
-      type: 'timeCat',
-      // tickCount: 5,
-    },
-  };
 
   return (
     <S.Container>
@@ -94,7 +109,9 @@ export function EvolutionOriented() {
         <Empty description="Adicione mais marcações para visualizar o gráfico" />
       )}
 
-      {data.length > 2 && !chartLoading && <Line {...config} />}
+      {data.length > 2 && !chartLoading && configChart && (
+        <Line {...configChart} />
+      )}
 
       <Drawer
         closable

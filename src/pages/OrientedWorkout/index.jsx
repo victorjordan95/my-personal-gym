@@ -26,7 +26,7 @@ export function OrientedWorkout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
   const [workoutTypes, setWorkoutTypes] = useState([]);
-  const [activeWeek, setActiveWeek] = useState(1);
+  const [activeWeek, setActiveWeek] = useState(state.activeWeekParam || 1);
   const [user, setUser] = useState({ name: '', id: '' });
   const [workoutDescription, setWorkoutDescription] = useState('');
 
@@ -137,7 +137,7 @@ export function OrientedWorkout() {
         setWeeks(
           weeksData.sort((a, b) => a.createdAt.seconds - b.createdAt.seconds)
         );
-        setActiveWeek(weeksData[0].id);
+        setActiveWeek(weeksData[activeWeek - 1].id);
         weeksData.forEach((week) => {
           getExercises(week);
         });

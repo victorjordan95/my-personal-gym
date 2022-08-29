@@ -11,6 +11,7 @@ import {
   Tabs,
 } from 'antd';
 import { Timestamp } from 'firebase/firestore';
+import { add, isAfter, isBefore } from 'date-fns';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
@@ -39,6 +40,8 @@ export function Oriented() {
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeWeek, setActiveWeek] = useState(1);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleCancel = () => {
@@ -48,6 +51,29 @@ export function Oriented() {
   const remove = (record) => {
     CrudService.delete(TABLE_DB_NAME, record.id);
   };
+
+  function getActiveWeek(weekData) {
+    const weeks = Number(weekData.amountOfWeeks);
+    const dateWorkout = weekData?.newWorkoutDate?.toDate();
+    let activeWeekFound = 1;
+
+    while (activeWeekFound <= weeks) {
+      const currentWeek = add(dateWorkout, {
+        days: 7 * activeWeekFound,
+      });
+      const startDate = new Date(currentWeek);
+      const endDate = add(startDate, { days: 6 });
+
+      const currentDate = new Date();
+      if (isAfter(currentDate, startDate) && isBefore(currentDate, endDate)) {
+        setActiveWeek(activeWeekFound);
+        break;
+      }
+
+      activeWeekFound += 1;
+    }
+    return activeWeekFound;
+  }
 
   const calculateDistanceInDays = (date1) => {
     if (!date1) return 0;
@@ -69,6 +95,7 @@ export function Oriented() {
     setEditForm(singleData);
     setData(singleData);
     setIsModalVisible(singleData.hasNewWorkout);
+    getActiveWeek(singleData);
     setIsLoading(false);
   };
 
@@ -82,7 +109,7 @@ export function Oriented() {
 
   const redirectWorkouts = () => {
     navigate(`/orientados/${id}/treino`, {
-      state: { name: data.name, id },
+      state: { name: data.name, id, activeWeekParam: activeWeek },
     });
   };
 

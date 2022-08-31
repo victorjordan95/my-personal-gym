@@ -14,6 +14,7 @@ import { ROLES } from '../../constants/roles';
 import userContext from '../../contexts/userContext';
 import { AnnotationModal } from './AnnotationModal';
 import * as S from './styles';
+import { isTrainer } from '../../utils/checkRoles';
 
 const { TabPane } = Tabs;
 
@@ -237,7 +238,7 @@ export function OrientedWorkout() {
         activeKey={activeWeek}
         onChange={(activeKey) => handleChangeWeek(activeKey)}
         tabBarExtraContent={
-          userCon.user.role === ROLES.TRAINER && (
+          isTrainer(userCon.user.role) && (
             <Space>
               <Button type="primary" onClick={showAnnotationModal}>
                 Anotação

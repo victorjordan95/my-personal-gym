@@ -17,6 +17,7 @@ import { auth } from '../../../config/firebase';
 import { ROLES } from '../../../constants/roles';
 import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
+import { isOriented, isTrainer } from '../../../utils/checkRoles';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
 
@@ -95,7 +96,7 @@ export function OrientedsForm({
   const getTrainers = async () => {
     try {
       const data = await CrudService.getAll('users');
-      const tr = data.filter((us) => us.role === ROLES.TRAINER);
+      const tr = data.filter((us) => isTrainer(us.role));
       setTrainers(tr);
     } catch (error) {
       errorHandler(error);
@@ -122,7 +123,7 @@ export function OrientedsForm({
         layout="vertical"
         onFinish={onFinish}
       >
-        {user.role !== ROLES.ORIENTED && (
+        {!isOriented(user.role) && (
           <>
             <Form.Item
               label="Treinador"

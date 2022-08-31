@@ -5,8 +5,8 @@ import { BsPeopleFill } from 'react-icons/bs';
 import { CgGym, CgProfile } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom';
 
-import { ROLES } from '../../constants/roles';
 import userContext from '../../contexts/userContext';
+import { isOriented } from '../../utils/checkRoles';
 import { MobileMenu } from './MobileMenu';
 import { SiderApp } from './SiderApp';
 import * as S from './styles';
@@ -16,7 +16,7 @@ export function ContainerApp({ children }) {
   const { user } = useContext(userContext);
 
   const getTrainersRoles = () => {
-    if (user?.role === ROLES.ORIENTED) {
+    if (isOriented(user?.role)) {
       return [];
     }
     return [
@@ -48,7 +48,7 @@ export function ContainerApp({ children }) {
   };
 
   const orientedsRoles = () => {
-    if (user?.role !== ROLES.ORIENTED) {
+    if (!isOriented(user?.role)) {
       return [];
     }
 

@@ -12,7 +12,7 @@ export function AnnotationModal({
   TABLE_DB_NAME,
 }) {
   const [workoutDescription, setWorkoutDescription] = useState(
-    workoutDesc.description
+    workoutDesc?.description || ''
   );
 
   const handleSave = async () => {

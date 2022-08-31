@@ -53,12 +53,15 @@ export function Orienteds() {
       title: 'Nome',
       dataIndex: 'name',
       key: 'name',
-      sortDirections: ['descend'],
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortDirections: ['descend', 'ascend'],
     },
     {
       title: 'Peso',
       dataIndex: 'weight',
       key: 'weight',
+      sorter: (a, b) => a.weight - b.weight,
+      sortDirections: ['descend', 'ascend'],
     },
     {
       title: 'Altura',

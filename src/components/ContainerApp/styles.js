@@ -31,7 +31,10 @@ export const Wrapper = styled(Layout.Content)`
 
   .ant-table-content {
     overflow-x: auto;
-    max-width: calc(100vw - 32px);
+
+    @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+      max-width: calc(100vw - 32px);
+    }
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {

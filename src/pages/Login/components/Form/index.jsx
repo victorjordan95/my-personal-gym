@@ -4,7 +4,6 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { auth } from '../../../../config/firebase';
-import { ROLES } from '../../../../constants/roles';
 import userContext from '../../../../contexts/userContext';
 import CrudService from '../../../../services/CrudService';
 import { errorHandler } from '../../../../utils/errorHandler';
@@ -12,13 +11,14 @@ import { errorHandler } from '../../../../utils/errorHandler';
 import logoImg from '../../../../assets/images/logo.png';
 
 import * as S from '../../styles';
+import { isOriented } from '../../../../utils/checkRoles';
 
 export function FormLogin({ className }) {
   const user = useContext(userContext);
   const navigate = useNavigate();
 
   const handleNavigateByRole = ({ role, id }) => {
-    if (role === ROLES.ORIENTED) {
+    if (isOriented(role)) {
       navigate(`/orientados/${id}`);
       return;
     }

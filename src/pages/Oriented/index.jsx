@@ -5,27 +5,23 @@ import {
   Descriptions,
   Modal,
   PageHeader,
-  Space,
-  Statistic,
-  Table,
   Tabs,
 } from 'antd';
-import { Timestamp } from 'firebase/firestore';
 import { add, isAfter, isBefore } from 'date-fns';
+import { Timestamp } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Loader from '../../components/Loader';
-import { ROLES } from '../../constants/roles';
-import userContext from '../../contexts/userContext';
 
+import Loader from '../../components/Loader';
+import userContext from '../../contexts/userContext';
 import CrudService from '../../services/CrudService';
 import { checkRedirectUser } from '../../utils/checkRedirectUser';
+import { isOriented } from '../../utils/checkRoles';
 import { errorHandler } from '../../utils/errorHandler';
 import { isMe } from '../../utils/isMe';
 import { successHandler } from '../../utils/successHandler';
 import { OrientedsForm } from '../Orienteds/OrientedsForm';
 import { EvolutionOriented } from './EvolutionOriented';
-
 import * as S from './styles';
 
 const { TabPane } = Tabs;
@@ -177,7 +173,7 @@ export function Oriented() {
           subTitle={data?.profession}
           extra={[
             <>
-              {user?.role !== ROLES.ORIENTED && (
+              {!isOriented(user?.role) && (
                 <Button
                   key="1"
                   type="primary"

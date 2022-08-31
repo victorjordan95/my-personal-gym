@@ -20,6 +20,7 @@ import { EditableCell } from '../../../components/EditableCell';
 import { ROLES } from '../../../constants/roles';
 import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
+import { isTrainer } from '../../../utils/checkRoles';
 import { deepFreeze } from '../../../utils/deepFreeze';
 import { errorHandler } from '../../../utils/errorHandler';
 
@@ -206,7 +207,7 @@ export function WorkoutTableForm({
     {
       title: 'Exercício',
       dataIndex: 'name',
-      editable: user.role === ROLES.TRAINER,
+      editable: isTrainer(user.role),
       fixed: 'left',
       render: (_, record) =>
         record?.url_video ? (
@@ -220,18 +221,18 @@ export function WorkoutTableForm({
     {
       title: 'Observações',
       dataIndex: 'observations',
-      editable: user.role === ROLES.TRAINER,
+      editable: isTrainer(user.role),
       required: false,
     },
     {
       title: 'Séries',
       dataIndex: 'series',
-      editable: user.role === ROLES.TRAINER,
+      editable: isTrainer(user.role),
     },
     {
       title: 'Repetições',
       dataIndex: 'repetitions',
-      editable: user.role === ROLES.TRAINER,
+      editable: isTrainer(user.role),
     },
     {
       title: 'Carga',
@@ -242,7 +243,7 @@ export function WorkoutTableForm({
     {
       title: 'Descanso',
       dataIndex: 'rest',
-      editable: user.role === ROLES.TRAINER,
+      editable: isTrainer(user.role),
       isLastInput: true,
     },
     {
@@ -264,7 +265,7 @@ export function WorkoutTableForm({
           </span>
         ) : (
           <Space>
-            {user.role === ROLES.TRAINER && (
+            {isTrainer(user.role) && (
               <Typography.Link
                 disabled={editingKey !== ''}
                 onClick={() => handleRemoveExercise(record)}
@@ -336,7 +337,7 @@ export function WorkoutTableForm({
               Treino: {workoutType.name}
             </Typography.Title>
           </Col>
-          {user.role === ROLES.TRAINER && (
+          {isTrainer(user.role) && (
             <Col
               className="gutter-row actions-btn"
               xs={{ span: 24, offset: 0 }}

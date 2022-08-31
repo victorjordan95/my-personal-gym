@@ -65,13 +65,16 @@ export function EvolutionOriented() {
         };
       });
 
-      setData(parsedData.sort((a, b) => new Date(a.Date) > new Date(b.Date)));
+      const chartData = parsedData.sort(
+        (a, b) => new Date(a.Date) > new Date(b.Date)
+      );
+      setData(chartData);
       const weightMedia =
         parsedData.reduce((acc, curr) => acc + curr.weight, 0) /
         parsedData.length;
 
       const config = {
-        data,
+        data: chartData,
         padding: 'auto',
         xField: 'Date',
         yField: 'weight',
@@ -84,7 +87,9 @@ export function EvolutionOriented() {
           max: weightMedia + 5,
         },
       };
+
       setConfigChart(config);
+      console.log(config);
     } catch (error) {
       errorHandler(error);
     }

@@ -43,7 +43,7 @@ export function Workouts() {
       key: 'name',
       onFilter: (value, record) => record.name.indexOf(value) === 0,
       sorter: (a, b) => a.name.localeCompare(b.name),
-      sortDirections: ['descend'],
+      sortDirections: ['descend', 'ascend'],
     },
     {
       title: 'Tipo de exercício',
@@ -61,6 +61,7 @@ export function Workouts() {
       filterMode: 'tree',
       filterSearch: true,
       onFilter: (value, record) => record.type.startsWith(value),
+      sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
       title: 'URL vídeo',

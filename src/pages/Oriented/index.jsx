@@ -7,7 +7,7 @@ import {
   PageHeader,
   Tabs,
 } from 'antd';
-import { add, isAfter, isBefore } from 'date-fns';
+import { add, isAfter, isBefore, startOfWeek, isSunday } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -53,10 +53,8 @@ export function Oriented() {
     const dateWorkout = weekData?.newWorkoutDate?.toDate();
     let activeWeekFound = 1;
 
+    let currentWeek = dateWorkout;
     while (activeWeekFound <= weeks) {
-      const currentWeek = add(dateWorkout, {
-        days: 7 * activeWeekFound,
-      });
       const startDate = new Date(currentWeek);
       const endDate = add(startDate, { days: 6 });
 
@@ -66,6 +64,9 @@ export function Oriented() {
         break;
       }
 
+      currentWeek = add(dateWorkout, {
+        days: 7 * activeWeekFound,
+      });
       activeWeekFound += 1;
     }
     return activeWeekFound;
@@ -84,6 +85,19 @@ export function Oriented() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return ` - termina em ${diffDays} ${diffDays > 1 ? 'dias' : 'dia'}`;
+  };
+
+  const getStartWorkoutDate = (date) => {
+    if (!date) return 'Não iniciado';
+
+    const workoutDate = date.toDate();
+
+    if (isSunday(workoutDate)) {
+      return add(workoutDate, { days: 1 }).toLocaleDateString('pt-BR');
+    }
+
+    const dateNextWeek = add(workoutDate, { days: 7 });
+    return startOfWeek(dateNextWeek).toLocaleDateString('pt-BR');
   };
 
   const getData = async () => {
@@ -212,7 +226,7 @@ export function Oriented() {
                   {data?.height} m
                 </Descriptions.Item>
                 <Descriptions.Item label="Início">
-                  {data?.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                  {getStartWorkoutDate(data?.createdAt)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Treino criado em">
                   {data?.newWorkoutDate?.toDate().toLocaleDateString('pt-BR')}

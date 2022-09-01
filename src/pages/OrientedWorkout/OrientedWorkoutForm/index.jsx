@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/jsx-props-no-spreading */
 import {
   Button,
   Col,
@@ -13,11 +11,9 @@ import {
   Typography,
 } from 'antd';
 import { useContext, useEffect, useState } from 'react';
-
 import { v4 as uuidv4 } from 'uuid';
 
 import { EditableCell } from '../../../components/EditableCell';
-import { ROLES } from '../../../constants/roles';
 import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
 import { isTrainer } from '../../../utils/checkRoles';
@@ -55,6 +51,7 @@ export function WorkoutTableForm({
   }
 
   function updateExercise({ data, exercise }) {
+    debugger;
     const index = freezedDB.workouts.findIndex((el) => el.key === exercise.key);
     freezedDB.workouts[index] = data;
     updateBD(week.id, freezedDB);
@@ -65,8 +62,7 @@ export function WorkoutTableForm({
     updateBD(week.id, freezedDB);
   }
 
-  function saveWorkout({ item, row, workouts }) {
-    // check in freezedDB if has workouts of the same type
+  function saveWorkout({ item, row }) {
     const workoutType = freezedDB.workouts.find(
       (workout) =>
         workout.id === item.workoutType ||
@@ -122,10 +118,8 @@ export function WorkoutTableForm({
         item,
         row: newRow,
         weekIndex,
-        workouts: freezeIndex.workouts,
       });
     } catch (errInfo) {
-      console.error('Validate Failed:', errInfo);
       errorHandler(errInfo);
     }
     setEditingKey('');

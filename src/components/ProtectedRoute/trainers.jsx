@@ -1,8 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { ROLES } from '../../constants/roles';
+
+import { isOriented } from '../../utils/checkRoles';
 
 export function TrainersRoute({ user, children }) {
-  if (user.role !== ROLES.ADMIN && user.role !== ROLES.TRAINER) {
+  if (isOriented(user.role)) {
     return <Navigate to="inicio" replace />;
   }
 

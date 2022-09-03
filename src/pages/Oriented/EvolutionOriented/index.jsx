@@ -89,7 +89,6 @@ export function EvolutionOriented() {
       };
 
       setConfigChart(config);
-      console.log(config);
     } catch (error) {
       errorHandler(error);
     }

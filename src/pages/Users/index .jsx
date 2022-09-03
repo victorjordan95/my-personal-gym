@@ -6,7 +6,7 @@ import { ROLES } from '../../constants/roles';
 import CrudService from '../../services/CrudService';
 import { errorHandler } from '../../utils/errorHandler';
 import { successHandler } from '../../utils/successHandler';
-import { WorkoutForm } from './WorkoutForm';
+import { UserForm } from './UserForm';
 
 const TABLE_DB_NAME = 'users';
 const ROLES_TEXT = {
@@ -43,8 +43,8 @@ export function Users() {
   };
 
   const getData = async () => {
-    const works = await CrudService.getAll(TABLE_DB_NAME);
-    setData(works);
+    const fetchedData = await CrudService.getAll(TABLE_DB_NAME);
+    setData(fetchedData);
   };
 
   const columns = [
@@ -96,7 +96,7 @@ export function Users() {
     >
       <Table dataSource={data} columns={columns} />
 
-      <WorkoutForm
+      <UserForm
         editForm={editForm}
         handleCloseModal={handleCloseModal}
         setData={setData}

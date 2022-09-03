@@ -41,7 +41,6 @@ export function Orienteds() {
       const dataList = await CrudService.getAll(TABLE_DB_NAME);
       const myOrienteds = dataList.filter((item) => item.trainerId === userId);
       setData(myOrienteds);
-      console.log(myOrienteds);
     } catch (error) {
       errorHandler(error);
     }

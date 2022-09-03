@@ -20,5 +20,6 @@ module.exports = {
     'react/prop-types': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'no-debugger': 'warn',
+    'no-unused-vars': 'warn',
   },
 };

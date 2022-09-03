@@ -1,8 +1,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Dropdown, Menu } from 'antd';
+import { useContext } from 'react';
 import { HiOutlineUserCircle } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';
+import userContext from '../../../contexts/userContext';
+import { isTrainer } from '../../../utils/checkRoles';
 
 import LogoIcon from '../../Icons/Logo';
 import * as S from './styles';
@@ -13,15 +16,30 @@ function handleLogout() {
 }
 
 export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
+  const { user } = useContext(userContext);
   const navigate = useNavigate();
 
   const handleClickRedirect = (route) => {
     navigate(route);
   };
 
+  const redirectTrainerRoute = () => {
+    navigate(`/orientados/${user?.bdId}`);
+  };
+
+  const trainerMenu = [
+    {
+      ...(isTrainer(user?.role) && {
+        label: <span onClick={() => redirectTrainerRoute()}>Meu treino</span>,
+        key: '2',
+      }),
+    },
+  ];
+
   const menu = (
     <Menu
       items={[
+        ...(trainerMenu || []),
         {
           label: (
             <span onClick={() => handleClickRedirect('perfil')}>Perfil</span>

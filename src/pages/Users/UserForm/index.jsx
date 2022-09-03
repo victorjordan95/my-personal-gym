@@ -7,7 +7,7 @@ import CrudService from '../../../services/CrudService';
 import { errorHandler } from '../../../utils/errorHandler';
 import { successHandler } from '../../../utils/successHandler';
 
-export function WorkoutForm({
+export function UserForm({
   editForm,
   handleCloseModal,
   setEditForm,
@@ -42,7 +42,20 @@ export function WorkoutForm({
     }
   };
 
-  const onFinish = async (values) => {
+  const updateUser = async (values) => {
+    const user = await CrudService.update('users', editForm.id, values);
+    setData((prev) => prev.map((item) => (item.id === user.id ? user : item)));
+    successHandler(
+      'Registro atualizado com sucesso. Você pode continuar editando outros registros.'
+    );
+    setEditForm({});
+  };
+
+  const onFinish = (values) => {
+    if (editForm.uid) {
+      updateUser(values);
+      return;
+    }
     registerWithEmailAndPassword(values);
     setEditForm({});
   };

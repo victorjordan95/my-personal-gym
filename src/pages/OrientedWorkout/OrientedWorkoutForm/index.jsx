@@ -51,7 +51,6 @@ export function WorkoutTableForm({
   }
 
   function updateExercise({ data, exercise }) {
-    debugger;
     const index = freezedDB.workouts.findIndex((el) => el.key === exercise.key);
     freezedDB.workouts[index] = data;
     updateBD(week.id, freezedDB);

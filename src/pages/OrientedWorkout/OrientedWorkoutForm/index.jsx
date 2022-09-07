@@ -16,11 +16,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { EditableCell } from '../../../components/EditableCell';
 import userContext from '../../../contexts/userContext';
 import CrudService from '../../../services/CrudService';
-import { isTrainer } from '../../../utils/checkRoles';
+import { isOriented, isTrainer } from '../../../utils/checkRoles';
 import { deepFreeze } from '../../../utils/deepFreeze';
 import { errorHandler } from '../../../utils/errorHandler';
 
 export function WorkoutTableForm({
+  activeKey,
   allWorkouts,
   workoutTypes,
   setWorkoutTypes,
@@ -57,6 +58,8 @@ export function WorkoutTableForm({
   }
 
   function createNewExercise({ data }) {
+    if (isOriented(user.role)) return;
+
     freezedDB.workouts.push(data);
     updateBD(week.id, freezedDB);
   }
@@ -93,11 +96,11 @@ export function WorkoutTableForm({
       const row = await form.validateFields();
       const newData = [...(workoutGroup.workouts ?? [])];
       const index = newData.findIndex((item) => record.key === item.key);
-      const workoutGroupindex = freezeAllWorkouts[0].workouts.findIndex(
-        (el) => el.id === workoutGroup.id
-      );
       const weekIndex = freezeAllWorkouts.findIndex(
         (el) => el.id === record.weekId || el.id === record.id
+      );
+      const workoutGroupindex = freezeAllWorkouts[weekIndex].workouts.findIndex(
+        (el) => el.id === workoutGroup.id
       );
       const freezeIndex =
         freezeAllWorkouts[weekIndex].workouts[workoutGroupindex];
@@ -112,7 +115,10 @@ export function WorkoutTableForm({
         id: freezeIndex.workouts[index]?.id || week.id,
       };
 
+      freezeAllWorkouts[activeKey].workouts[workoutGroupindex].workouts[index] =
+        { ...item, ...row };
       setWorkoutTypes(freezeAllWorkouts);
+
       saveWorkout({
         item,
         row: newRow,

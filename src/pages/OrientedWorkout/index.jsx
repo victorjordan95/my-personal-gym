@@ -259,7 +259,7 @@ export function OrientedWorkout() {
           )
         }
       >
-        {weeks.map((week) => (
+        {weeks.map((week, index) => (
           <TabPane tab={week.name} key={week.id}>
             <WorkoutTableForm
               setWorkoutTypes={setWorkoutTypes}
@@ -271,6 +271,7 @@ export function OrientedWorkout() {
               allWorkouts={workoutTypes}
               TABLE_DB_NAME={TABLE_DB_NAME}
               updateWeek={updateWeek}
+              activeKey={index}
             />
           </TabPane>
         ))}

@@ -1,17 +1,15 @@
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import logoImg from '../../../../assets/images/logo.png';
 import { auth } from '../../../../config/firebase';
 import userContext from '../../../../contexts/userContext';
 import CrudService from '../../../../services/CrudService';
-import { errorHandler } from '../../../../utils/errorHandler';
-
-import logoImg from '../../../../assets/images/logo.png';
-
-import * as S from '../../styles';
 import { isOriented } from '../../../../utils/checkRoles';
+import { errorHandler } from '../../../../utils/errorHandler';
+import * as S from '../../styles';
 
 export function FormLogin({ className }) {
   const user = useContext(userContext);
@@ -49,20 +47,28 @@ export function FormLogin({ className }) {
       };
       getUserInfo(userData);
     } catch (err) {
-      console.error(err);
       errorHandler(err);
     }
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    errorHandler(errorInfo);
   };
+
+  useEffect(() => {
+    auth.onAuthStateChanged((loggedUser) => {
+      if (loggedUser) {
+        getUserInfo({
+          id: loggedUser.uid,
+        });
+      }
+    });
+  }, []);
 
   return (
     <S.FormContainer>
       <img src={logoImg} alt="Logo" />
       <Form
-        autoComplete="off"
         className={className}
         layout="vertical"
         initialValues={{ remember: true }}
@@ -84,10 +90,6 @@ export function FormLogin({ className }) {
           rules={[{ required: true, message: 'Insira sua senha!' }]}
         >
           <Input.Password />
-        </Form.Item>
-
-        <Form.Item name="remember" valuePropName="checked">
-          <Checkbox>Remember me</Checkbox>
         </Form.Item>
 
         <Form.Item>

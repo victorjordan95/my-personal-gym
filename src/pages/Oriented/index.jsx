@@ -18,6 +18,7 @@ import CrudService from '../../services/CrudService';
 import { checkRedirectUser } from '../../utils/checkRedirectUser';
 import { isOriented } from '../../utils/checkRoles';
 import { errorHandler } from '../../utils/errorHandler';
+import { getActiveWeek } from '../../utils/getActiveWeek';
 import { isMe } from '../../utils/isMe';
 import { successHandler } from '../../utils/successHandler';
 import { OrientedsForm } from '../Orienteds/OrientedsForm';
@@ -48,29 +49,29 @@ export function Oriented() {
     CrudService.delete(TABLE_DB_NAME, record.id);
   };
 
-  function getActiveWeek(weekData) {
-    const weeks = Number(weekData.amountOfWeeks);
-    const dateWorkout = weekData?.newWorkoutDate?.toDate();
-    let activeWeekFound = 1;
+  // function getActiveWeek(weekData) {
+  //   const weeks = Number(weekData.amountOfWeeks);
+  //   const dateWorkout = weekData?.newWorkoutDate?.toDate();
+  //   let activeWeekFound = 1;
 
-    let currentWeek = dateWorkout;
-    while (activeWeekFound <= weeks) {
-      const startDate = new Date(currentWeek);
-      const endDate = add(startDate, { days: 6 });
+  //   let currentWeek = dateWorkout;
+  //   while (activeWeekFound <= weeks) {
+  //     const startDate = new Date(currentWeek);
+  //     const endDate = add(startDate, { days: 6 });
 
-      const currentDate = new Date();
-      if (isAfter(currentDate, startDate) && isBefore(currentDate, endDate)) {
-        setActiveWeek(activeWeekFound);
-        break;
-      }
+  //     const currentDate = new Date();
+  //     if (isAfter(currentDate, startDate) && isBefore(currentDate, endDate)) {
+  //       setActiveWeek(activeWeekFound);
+  //       break;
+  //     }
 
-      currentWeek = add(dateWorkout, {
-        days: 7 * activeWeekFound,
-      });
-      activeWeekFound += 1;
-    }
-    return activeWeekFound;
-  }
+  //     currentWeek = add(dateWorkout, {
+  //       days: 7 * activeWeekFound,
+  //     });
+  //     activeWeekFound += 1;
+  //   }
+  //   return activeWeekFound;
+  // }
 
   const calculateDistanceInDays = (date1) => {
     if (!date1) return 0;
@@ -105,8 +106,10 @@ export function Oriented() {
     setEditForm(singleData);
     setData(singleData);
     setIsModalVisible(singleData.hasNewWorkout);
-    getActiveWeek(singleData);
+    const activeFoundWeek = getActiveWeek(singleData);
+    setActiveWeek(activeFoundWeek);
     setIsLoading(false);
+    localStorage.setItem('workoutDate', singleData.newWorkoutDate);
   };
 
   const showDrawer = () => {

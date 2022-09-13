@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 import userContext from '../../contexts/userContext';
 import { isOriented } from '../../utils/checkRoles';
+import { isMobile } from '../../utils/detectSizeScreen';
 import { MobileMenu } from './MobileMenu';
 import { SiderApp } from './SiderApp';
 import * as S from './styles';
@@ -52,7 +53,7 @@ export function ContainerApp({ children }) {
       return [];
     }
 
-    return [
+    const mobileRoles = [
       {
         key: '4',
         icon: <CgProfile />,
@@ -61,6 +62,9 @@ export function ContainerApp({ children }) {
         url: '/perfil',
         showInMobile: true,
       },
+    ];
+    return [
+      isMobile() ? mobileRoles : {},
       {
         key: '5',
         icon: <CgGym />,

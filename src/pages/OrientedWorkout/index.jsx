@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-no-bind */
 import { Breadcrumb, Button, Col, Row, Space, Tabs } from 'antd';
 import { useContext, useEffect, useState } from 'react';
@@ -10,11 +9,11 @@ import CrudService from '../../services/CrudService';
 import { errorHandler } from '../../utils/errorHandler';
 import { WorkoutTableForm } from './OrientedWorkoutForm';
 
-import { ROLES } from '../../constants/roles';
 import userContext from '../../contexts/userContext';
+import { isTrainer } from '../../utils/checkRoles';
 import { AnnotationModal } from './AnnotationModal';
 import * as S from './styles';
-import { isTrainer } from '../../utils/checkRoles';
+import { getActiveWeek } from '../../utils/getActiveWeek';
 
 const { TabPane } = Tabs;
 
@@ -132,6 +131,11 @@ export function OrientedWorkout() {
   };
 
   async function getWeeks() {
+    if (!state.activeWeekParam) {
+      const workoutDateStorage = localStorage.getItem('workoutDate');
+      const activeFoundWeek = getActiveWeek(workoutDateStorage);
+      setActiveWeek(activeFoundWeek);
+    }
     try {
       const weeksData = await CrudService.getAll(TABLE_DB_NAME);
       if (weeksData.length !== 0) {

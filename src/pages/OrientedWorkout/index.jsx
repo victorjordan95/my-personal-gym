@@ -142,7 +142,7 @@ export function OrientedWorkout() {
         setWeeks(
           weeksData.sort((a, b) => a.createdAt.seconds - b.createdAt.seconds)
         );
-        setActiveWeek(weeksData[activeWeek - 1].id);
+        setActiveWeek(weeksData[activeWeek - 1]?.id ?? weeksData[0]?.id);
         weeksData.forEach((week) => {
           getExercises(week);
         });

@@ -12,10 +12,10 @@ import * as S from './styles';
 export function EvolutionOriented() {
   const { id } = useParams();
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
-  const [visible, setVisible] = useState(false);
   const [chartLoading, setChartLoading] = useState(false);
   const [configChart, setConfigChart] = useState({});
+  const [data, setData] = useState([]);
+  const [visible, setVisible] = useState(false);
 
   const handleCloseModal = () => {
     form.resetFields();
@@ -24,6 +24,28 @@ export function EvolutionOriented() {
 
   const handleOpenModal = () => {
     setVisible(true);
+  };
+
+  const setDataChart = (dataChart) => {
+    const weightMedia =
+      dataChart.reduce((acc, curr) => acc + curr.weight, 0) / dataChart.length;
+
+    const config = {
+      data: dataChart,
+      padding: 'auto',
+      xField: 'Date',
+      yField: 'weight',
+      xAxis: {
+        type: 'timeCat',
+        // tickCount: 5,
+      },
+      yAxis: {
+        min: weightMedia - 5,
+        max: weightMedia + 5,
+      },
+    };
+
+    setConfigChart(config);
   };
 
   const saveWeight = async (values) => {
@@ -37,6 +59,7 @@ export function EvolutionOriented() {
       handleCloseModal();
       successHandler('Peso adicionado com sucesso.');
       setData((prev) => [{ ...values }, ...prev]);
+      setDataChart([{ ...values }, ...data]);
     } catch (error) {
       errorHandler(error);
     }
@@ -69,26 +92,7 @@ export function EvolutionOriented() {
         (a, b) => new Date(a.Date) > new Date(b.Date)
       );
       setData(chartData);
-      const weightMedia =
-        parsedData.reduce((acc, curr) => acc + curr.weight, 0) /
-        parsedData.length;
-
-      const config = {
-        data: chartData,
-        padding: 'auto',
-        xField: 'Date',
-        yField: 'weight',
-        xAxis: {
-          type: 'timeCat',
-          // tickCount: 5,
-        },
-        yAxis: {
-          min: weightMedia - 5,
-          max: weightMedia + 5,
-        },
-      };
-
-      setConfigChart(config);
+      setDataChart(chartData);
     } catch (error) {
       errorHandler(error);
     }

@@ -53,7 +53,7 @@ export function ContainerApp({ children }) {
       return [];
     }
 
-    const mobileRoles = [
+    const mobileMenu = [
       {
         key: '4',
         icon: <CgProfile />,
@@ -63,8 +63,9 @@ export function ContainerApp({ children }) {
         showInMobile: true,
       },
     ];
+
     return [
-      isMobile() ? mobileRoles : {},
+      ...((isMobile() && mobileMenu) || []),
       {
         key: '5',
         icon: <CgGym />,

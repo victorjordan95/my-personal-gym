@@ -1,19 +1,21 @@
+/* eslint-disable new-cap */
 /* eslint-disable react/jsx-no-bind */
 import { Breadcrumb, Button, Col, Row, Space, Tabs } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import html2canvas from 'html2canvas';
+
 import Loader from '../../components/Loader';
 import { workoustIds } from '../../constants/workoutsNamesById';
-import CrudService from '../../services/CrudService';
-import { errorHandler } from '../../utils/errorHandler';
-import { WorkoutTableForm } from './OrientedWorkoutForm';
-
 import userContext from '../../contexts/userContext';
+import CrudService from '../../services/CrudService';
 import { isTrainer } from '../../utils/checkRoles';
-import { AnnotationModal } from './AnnotationModal';
-import * as S from './styles';
+import { errorHandler } from '../../utils/errorHandler';
 import { getActiveWeek } from '../../utils/getActiveWeek';
+import { AnnotationModal } from './AnnotationModal';
+import { WorkoutTableForm } from './OrientedWorkoutForm';
+import * as S from './styles';
 
 const { TabPane } = Tabs;
 
@@ -23,12 +25,12 @@ export function OrientedWorkout() {
   const userCon = useContext(userContext);
   const TABLE_DB_NAME = `users/${id}/treinos`;
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
-  const [workoutTypes, setWorkoutTypes] = useState([]);
   const [activeWeek, setActiveWeek] = useState(state.activeWeekParam || 1);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [user, setUser] = useState({ name: '', id: '' });
+  const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
   const [workoutDescription, setWorkoutDescription] = useState('');
+  const [workoutTypes, setWorkoutTypes] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -173,11 +175,17 @@ export function OrientedWorkout() {
   async function getUsername() {
     if (!state?.name) {
       const singleData = await CrudService.getById(TABLE_DB_NAME, id);
-      setUser({ name: singleData.name, id: singleData.id });
+      setUser({
+        name: singleData.name,
+        id: singleData.id,
+        workoutDate: singleData.workoutDate
+          .toDate()
+          .toLocaleDateString('pt-BR'),
+      });
       return;
     }
 
-    setUser({ name: state.name, id: state.id });
+    setUser({ name: state.name, id: state.id, workoutDate: state.workoutDate });
   }
 
   function updateWeek(weekId, week) {
@@ -210,6 +218,40 @@ export function OrientedWorkout() {
     }
   }
 
+  const downloadImage = (blob, fileName) => {
+    const fakeLink = window.document.createElement('a');
+    fakeLink.style = 'display:none;';
+    fakeLink.download = fileName;
+
+    fakeLink.href = blob;
+
+    document.body.appendChild(fakeLink);
+    fakeLink.click();
+    document.body.removeChild(fakeLink);
+
+    fakeLink.remove();
+  };
+
+  const printWorkout = async () => {
+    const element = document.getElementById('workout-table');
+    const html = document.getElementsByTagName('html')[0];
+    const body = document.getElementsByTagName('body')[0];
+    let htmlWidth = html.clientWidth;
+    let bodyWidth = body.clientWidth;
+    const newWidth = element.scrollWidth - element.clientWidth;
+    if (newWidth > element.clientWidth) {
+      htmlWidth += newWidth;
+      bodyWidth += newWidth;
+    }
+    html.style.width = `${htmlWidth}px`;
+    body.style.width = `${bodyWidth}px`;
+    const canvas = await html2canvas(element);
+    // get high quality image
+    const image = canvas.toDataURL('image/png', 2.0);
+    const fileName = `${user.name} - Treino ${user.workoutDate}.png`;
+    downloadImage(image, fileName);
+  };
+
   useEffect(() => {
     getUsername();
     getWeeks();
@@ -238,48 +280,55 @@ export function OrientedWorkout() {
         </Col>
       </Row>
 
-      <S.WorkoutTab
-        activeKey={activeWeek}
-        onChange={(activeKey) => handleChangeWeek(activeKey)}
-        tabBarExtraContent={
-          isTrainer(userCon.user.role) && (
+      <div id="workout-table">
+        <S.WorkoutTab
+          activeKey={activeWeek}
+          onChange={(activeKey) => handleChangeWeek(activeKey)}
+          tabBarExtraContent={
             <Space>
-              <Button type="primary" onClick={showAnnotationModal}>
-                Anotação
+              <Button onClick={printWorkout} type="primary" ghost>
+                Imprimir
               </Button>
-              <Button onClick={addWeek}>Adicionar semana</Button>
-              <Button onClick={addWorkout} disabled={weeks.length === 0}>
-                Adicionar treino
-              </Button>
-              <Button
-                onClick={cleanWorkouts}
-                disabled={weeks.length === 0}
-                danger
-                type="primary"
-              >
-                Limpar treinos
-              </Button>
+              {isTrainer(userCon.user.role) && (
+                <>
+                  <Button type="primary" onClick={showAnnotationModal}>
+                    Anotação
+                  </Button>
+                  <Button onClick={addWeek}>Adicionar semana</Button>
+                  <Button onClick={addWorkout} disabled={weeks.length === 0}>
+                    Adicionar treino
+                  </Button>
+                  <Button
+                    onClick={cleanWorkouts}
+                    disabled={weeks.length === 0}
+                    danger
+                    type="primary"
+                  >
+                    Limpar treinos
+                  </Button>
+                </>
+              )}
             </Space>
-          )
-        }
-      >
-        {weeks.map((week, index) => (
-          <TabPane tab={week.name} key={week.id}>
-            <WorkoutTableForm
-              setWorkoutTypes={setWorkoutTypes}
-              week={week}
-              workoutTypes={
-                workoutTypes.find((workout) => workout.id === week.id)
-                  ?.workouts || []
-              }
-              allWorkouts={workoutTypes}
-              TABLE_DB_NAME={TABLE_DB_NAME}
-              updateWeek={updateWeek}
-              activeKey={index}
-            />
-          </TabPane>
-        ))}
-      </S.WorkoutTab>
+          }
+        >
+          {weeks.map((week, index) => (
+            <TabPane tab={week.name} key={week.id}>
+              <WorkoutTableForm
+                setWorkoutTypes={setWorkoutTypes}
+                week={week}
+                workoutTypes={
+                  workoutTypes.find((workout) => workout.id === week.id)
+                    ?.workouts || []
+                }
+                allWorkouts={workoutTypes}
+                TABLE_DB_NAME={TABLE_DB_NAME}
+                updateWeek={updateWeek}
+                activeKey={index}
+              />
+            </TabPane>
+          ))}
+        </S.WorkoutTab>
+      </div>
 
       <AnnotationModal
         isModalVisible={isModalVisible}

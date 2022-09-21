@@ -122,7 +122,12 @@ export function Oriented() {
 
   const redirectWorkouts = () => {
     navigate(`/orientados/${id}/treino`, {
-      state: { name: data.name, id, activeWeekParam: activeWeek },
+      state: {
+        name: data.name,
+        id,
+        activeWeekParam: activeWeek,
+        workoutDate: data.newWorkoutDate.toDate().toLocaleDateString('pt-BR'),
+      },
     });
   };
 

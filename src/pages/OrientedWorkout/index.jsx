@@ -5,6 +5,9 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
+import { HiOutlineDownload } from 'react-icons/hi';
 
 import Loader from '../../components/Loader';
 import { workoustIds } from '../../constants/workoutsNamesById';
@@ -25,12 +28,13 @@ export function OrientedWorkout() {
   const userCon = useContext(userContext);
   const TABLE_DB_NAME = `users/${id}/treinos`;
 
-  const [activeWeek, setActiveWeek] = useState(state.activeWeekParam || 1);
+  const [activeWeek, setActiveWeek] = useState(state?.activeWeekParam || 1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [user, setUser] = useState({ name: '', id: '' });
   const [weeks, setWeeks] = useState([{ id: 1, name: 'Semana 1' }]);
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [workoutTypes, setWorkoutTypes] = useState([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -133,7 +137,7 @@ export function OrientedWorkout() {
   };
 
   async function getWeeks() {
-    if (!state.activeWeekParam) {
+    if (!state?.activeWeekParam) {
       const workoutDateStorage = localStorage.getItem('workoutDate');
       const activeFoundWeek = getActiveWeek(workoutDateStorage);
       setActiveWeek(activeFoundWeek);
@@ -218,21 +222,8 @@ export function OrientedWorkout() {
     }
   }
 
-  const downloadImage = (blob, fileName) => {
-    const fakeLink = window.document.createElement('a');
-    fakeLink.style = 'display:none;';
-    fakeLink.download = fileName;
-
-    fakeLink.href = blob;
-
-    document.body.appendChild(fakeLink);
-    fakeLink.click();
-    document.body.removeChild(fakeLink);
-
-    fakeLink.remove();
-  };
-
   const printWorkout = async () => {
+    setIsDownloading(true);
     const element = document.getElementById('workout-table');
     const html = document.getElementsByTagName('html')[0];
     const body = document.getElementsByTagName('body')[0];
@@ -246,10 +237,25 @@ export function OrientedWorkout() {
     html.style.width = `${htmlWidth}px`;
     body.style.width = `${bodyWidth}px`;
     const canvas = await html2canvas(element);
-    // get high quality image
-    const image = canvas.toDataURL('image/png', 2.0);
-    const fileName = `${user.name} - Treino ${user.workoutDate}.png`;
-    downloadImage(image, fileName);
+    const image = canvas.toDataURL('image/png', 1.0);
+
+    const pdfSettings = {
+      orientation: 'p',
+      unit: 'pt',
+      format: 'a4',
+      compress: true,
+      fontSize: 8,
+      lineHeight: 1,
+      autoSize: false,
+      printHeaders: true,
+    };
+    const pdf = new jsPDF(pdfSettings);
+    const width = pdf.internal.pageSize.getWidth();
+    const height = pdf.internal.pageSize.getHeight();
+    pdf.addImage(image, 'PNG', 0, 0, width, height);
+    pdf.save(`${user.name} - Treino ${user.workoutDate}.pdf`);
+
+    setIsDownloading(false);
   };
 
   useEffect(() => {
@@ -285,9 +291,16 @@ export function OrientedWorkout() {
           activeKey={activeWeek}
           onChange={(activeKey) => handleChangeWeek(activeKey)}
           tabBarExtraContent={
-            <Space>
-              <Button onClick={printWorkout} type="primary" ghost>
-                Imprimir
+            <Space data-html2canvas-ignore>
+              <Button
+                onClick={printWorkout}
+                type="primary"
+                ghost
+                icon={<HiOutlineDownload />}
+                loading={isDownloading}
+                disabled={isDownloading}
+              >
+                Download
               </Button>
               {isTrainer(userCon.user.role) && (
                 <>

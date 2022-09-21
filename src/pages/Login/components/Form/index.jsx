@@ -29,7 +29,7 @@ export function FormLogin({ className }) {
       const us = users.find((u) => u.uid === userData.id);
       const saveData = { ...us, ...userData, bdId: us.id };
       localStorage.setItem('@personal-gym', JSON.stringify(saveData));
-      user.handleUserContext(saveData);
+      user?.handleUserContext(saveData);
       handleNavigateByRole({ role: us.role, id: us.id });
     } catch (error) {
       errorHandler(error);

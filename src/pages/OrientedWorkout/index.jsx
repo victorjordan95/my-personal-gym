@@ -18,6 +18,7 @@ import { getActiveWeek } from '../../utils/getActiveWeek';
 import { AnnotationModal } from './AnnotationModal';
 import { WorkoutTableForm } from './OrientedWorkoutForm';
 import * as S from './styles';
+import { isDesktop } from '../../utils/detectSizeScreen';
 
 const { TabPane } = Tabs;
 
@@ -237,6 +238,7 @@ export function OrientedWorkout() {
     const element = document.getElementById('workout-table');
     const canvas = await html2canvas(element);
     const image = canvas.toDataURL('image/png', 1.0);
+
     makeDownload(image, `${user.name} - Treino ${user.workoutDate}.png`);
 
     setIsDownloading(false);
@@ -276,16 +278,18 @@ export function OrientedWorkout() {
           onChange={(activeKey) => handleChangeWeek(activeKey)}
           tabBarExtraContent={
             <Space data-html2canvas-ignore>
-              <Button
-                onClick={printWorkout}
-                type="primary"
-                ghost
-                icon={<HiOutlineDownload />}
-                loading={isDownloading}
-                disabled={isDownloading}
-              >
-                Download
-              </Button>
+              {isDesktop() && (
+                <Button
+                  onClick={printWorkout}
+                  type="primary"
+                  ghost
+                  icon={<HiOutlineDownload />}
+                  loading={isDownloading}
+                  disabled={isDownloading}
+                >
+                  Download
+                </Button>
+              )}
               {isTrainer(userCon.user.role) && (
                 <>
                   <Button type="primary" onClick={showAnnotationModal}>

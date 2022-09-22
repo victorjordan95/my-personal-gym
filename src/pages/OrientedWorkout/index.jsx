@@ -5,7 +5,6 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 import { HiOutlineDownload } from 'react-icons/hi';
 
@@ -182,9 +181,9 @@ export function OrientedWorkout() {
       setUser({
         name: singleData.name,
         id: singleData.id,
-        workoutDate: singleData.workoutDate
-          .toDate()
-          .toLocaleDateString('pt-BR'),
+        workoutDate: singleData?.workoutDate
+          ?.toDate()
+          ?.toLocaleDateString('pt-BR'),
       });
       return;
     }
@@ -222,38 +221,23 @@ export function OrientedWorkout() {
     }
   }
 
+  const makeDownload = async (image, name) => {
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setIsLoading(false);
+  };
+
   const printWorkout = async () => {
     setIsDownloading(true);
     const element = document.getElementById('workout-table');
-    const html = document.getElementsByTagName('html')[0];
-    const body = document.getElementsByTagName('body')[0];
-    let htmlWidth = html.clientWidth;
-    let bodyWidth = body.clientWidth;
-    const newWidth = element.scrollWidth - element.clientWidth;
-    if (newWidth > element.clientWidth) {
-      htmlWidth += newWidth;
-      bodyWidth += newWidth;
-    }
-    html.style.width = `${htmlWidth}px`;
-    body.style.width = `${bodyWidth}px`;
     const canvas = await html2canvas(element);
     const image = canvas.toDataURL('image/png', 1.0);
-
-    const pdfSettings = {
-      orientation: 'p',
-      unit: 'pt',
-      format: 'a4',
-      compress: true,
-      fontSize: 8,
-      lineHeight: 1,
-      autoSize: false,
-      printHeaders: true,
-    };
-    const pdf = new jsPDF(pdfSettings);
-    const width = pdf.internal.pageSize.getWidth();
-    const height = pdf.internal.pageSize.getHeight();
-    pdf.addImage(image, 'PNG', 0, 0, width, height);
-    pdf.save(`${user.name} - Treino ${user.workoutDate}.pdf`);
+    makeDownload(image, `${user.name} - Treino ${user.workoutDate}.png`);
 
     setIsDownloading(false);
   };

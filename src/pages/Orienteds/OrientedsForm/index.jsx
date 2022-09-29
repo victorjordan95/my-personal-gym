@@ -62,6 +62,7 @@ export function OrientedsForm({
         role,
         email,
         trainerId: values.trainer,
+        active: true,
       };
       createData({ ...values, ...userData });
     } catch (err) {

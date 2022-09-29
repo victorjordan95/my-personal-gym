@@ -5,18 +5,13 @@ import { useContext } from 'react';
 import { HiOutlineUserCircle } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';
 import userContext from '../../../contexts/userContext';
-import { isTrainer } from '../../../utils/checkRoles';
+import { isAdmin, isTrainer } from '../../../utils/checkRoles';
 
 import LogoIcon from '../../Icons/Logo';
 import * as S from './styles';
 
-function handleLogout() {
-  localStorage.removeItem('token');
-  window.location.href = '/';
-}
-
 export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
-  const { user } = useContext(userContext);
+  const { user, logout } = useContext(userContext);
   const navigate = useNavigate();
 
   const handleClickRedirect = (route) => {
@@ -50,7 +45,7 @@ export function SiderApp({ collapsed, setCollapsed, linksMenu }) {
           type: 'divider',
         },
         {
-          label: <span onClick={handleLogout}>Sair</span>,
+          label: <span onClick={logout}>Sair</span>,
           key: '1',
         },
       ]}

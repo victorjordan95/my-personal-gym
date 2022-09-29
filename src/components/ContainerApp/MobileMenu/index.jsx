@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiLogOut } from 'react-icons/fi';
+import userContext from '../../../contexts/userContext';
 
 import * as S from './styles';
 
 export function MobileMenu({ linksMenu }) {
   const linksMenuMobile = linksMenu.filter((link) => link.showInMobile);
   const linksDrawer = linksMenu.filter((link) => !link.showInMobile);
+  const { logout } = useContext(userContext);
   const [visible, setVisible] = useState(false);
 
   function handleLogout() {
-    localStorage.removeItem('token');
-    window.location.href = '/';
+    logout();
   }
 
   const handleOpenMenu = () => {

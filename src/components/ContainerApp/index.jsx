@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
 import { BiLineChart } from 'react-icons/bi';
+import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 
 import { BsPeopleFill } from 'react-icons/bs';
 import { CgGym, CgProfile } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom';
 
 import userContext from '../../contexts/userContext';
-import { isOriented } from '../../utils/checkRoles';
+import { isAdmin, isOriented } from '../../utils/checkRoles';
 import { isMobile } from '../../utils/detectSizeScreen';
 import { MobileMenu } from './MobileMenu';
 import { SiderApp } from './SiderApp';
@@ -15,6 +16,21 @@ import * as S from './styles';
 export function ContainerApp({ children }) {
   const navigate = useNavigate();
   const { user } = useContext(userContext);
+
+  const getAdminRoles = () => {
+    const roles = [];
+    if (isAdmin(user?.role)) {
+      roles.push({
+        key: '6',
+        label: 'Usuários',
+        icon: <MdOutlineAdminPanelSettings />,
+        url: '/perfil',
+        onClick: () => navigate('usuarios'),
+        showInMobile: false,
+      });
+    }
+    return roles;
+  };
 
   const getTrainersRoles = () => {
     if (isOriented(user?.role)) {
@@ -37,14 +53,14 @@ export function ContainerApp({ children }) {
         label: 'Orientados',
         showInMobile: true,
       },
-      {
-        key: '3',
-        icon: <BiLineChart />,
-        onClick: () => navigate('/graficos'),
-        url: '/graficos',
-        label: 'Gráficos',
-        showInMobile: false,
-      },
+      // {
+      //   key: '3',
+      //   icon: <BiLineChart />,
+      //   onClick: () => navigate('/graficos'),
+      //   url: '/graficos',
+      //   label: 'Gráficos',
+      //   showInMobile: false,
+      // },
     ];
   };
 
@@ -80,9 +96,10 @@ export function ContainerApp({ children }) {
   const getCommonRoles = () => [];
 
   const linksMenu = [
+    ...getAdminRoles(),
+    ...getCommonRoles(),
     ...getTrainersRoles(),
     ...orientedsRoles(),
-    ...getCommonRoles(),
   ].sort((a, b) => a.key - b.key);
 
   return (

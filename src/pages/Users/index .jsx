@@ -1,7 +1,9 @@
-import { Button, PageHeader, Space, Table } from 'antd';
+import { Button, PageHeader, Space, Switch, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROLES } from '../../constants/roles';
+
+import Loader from '../../components/Loader';
 
 import CrudService from '../../services/CrudService';
 import { errorHandler } from '../../utils/errorHandler';
@@ -18,15 +20,27 @@ const ROLES_TEXT = {
 export function Users() {
   const navigate = useNavigate();
 
+  const [data, setData] = useState([]);
   const [editForm, setEditForm] = useState();
   const [visible, setVisible] = useState(false);
-  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const remove = (record) => {
+  const toggleUser = (checked, record) => {
     try {
-      CrudService.delete(TABLE_DB_NAME, record.id);
-      setData((prev) => prev.filter((item) => item.id !== record.id));
-      successHandler();
+      CrudService.update(TABLE_DB_NAME, record.id, { active: checked });
+      successHandler(
+        `Usuário ${record.name} ${
+          checked ? 'ativado' : 'desativado'
+        } com sucesso!`
+      );
+      setData(
+        data.map((item) => {
+          if (item.id === record.id) {
+            return { ...item, active: checked };
+          }
+          return item;
+        })
+      );
     } catch (error) {
       errorHandler(error.message);
     }
@@ -43,18 +57,36 @@ export function Users() {
   };
 
   const getData = async () => {
-    const fetchedData = await CrudService.getAll(TABLE_DB_NAME);
-    setData(fetchedData);
+    setIsLoading(true);
+    try {
+      const fetchedData = await CrudService.getAll(TABLE_DB_NAME);
+      setData(fetchedData);
+    } catch (error) {
+      errorHandler(error.message);
+    }
+    setIsLoading(false);
   };
 
   const columns = [
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: '50px',
+      render: (_, record) => (
+        <Switch
+          checked={record.active}
+          onChange={(checked) => toggleUser(checked, record)}
+        />
+      ),
+    },
     {
       title: 'Nome',
       dataIndex: 'name',
       key: 'name',
       onFilter: (value, record) => record.name.indexOf(value) === 0,
-      sorter: (a, b) => a.name.length - b.name.length,
-      sortDirections: ['descend'],
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortDirections: ['descend', 'ascend'],
     },
     {
       title: 'Tipo usuário',
@@ -70,9 +102,6 @@ export function Users() {
           <Button type="primary" onClick={() => showDrawer(record)}>
             Editar
           </Button>
-          <Button danger onClick={() => remove(record)}>
-            Remover
-          </Button>
         </Space>
       ),
     },
@@ -81,6 +110,10 @@ export function Users() {
   useEffect(() => {
     getData();
   }, []);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <PageHeader

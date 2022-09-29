@@ -5,6 +5,7 @@ import { notification } from 'antd';
  * @param error - The error object that was thrown.
  */
 export function errorHandler(error) {
+  console.error(error);
   notification.error({
     message: 'Ocorreu um erro',
     description: error.message,

@@ -73,32 +73,54 @@ export function Oriented() {
   //   return activeWeekFound;
   // }
 
+  const daysToAddForNextMonday = (day) => (day === 0 ? 1 : 8 - day);
+
+  const calculateStartDateWorkout = (date) => {
+    if (!date) return 'Não iniciado';
+
+    const dateWorkout = date?.toDate();
+    const day = dateWorkout?.getDay();
+
+    const daysToAdd = daysToAddForNextMonday(day);
+    const startDate = add(dateWorkout, { days: daysToAdd });
+    localStorage.setItem('workoutDate', startDate);
+
+    return startDate.toLocaleDateString('pt-BR');
+  };
+
+  const calculateValidDateWorkout = (date) => {
+    if (!date) return 'Treino não cadastrado ainda.';
+
+    const weeks = editForm.amountOfWeeks;
+    const dateWorkout = date?.toDate();
+    const day = dateWorkout?.getDay();
+    const daysToAdd = daysToAddForNextMonday(day);
+
+    const dateWorkoutPlusWeeks = new Date(
+      dateWorkout?.setDate(
+        dateWorkout.getDate() + Number(weeks) * 7 + daysToAdd
+      )
+    );
+
+    return dateWorkoutPlusWeeks.toLocaleDateString('pt-BR');
+  };
+
   const calculateDistanceInDays = (date1) => {
     if (!date1) return 0;
 
     const weeks = editForm?.amountOfWeeks;
     const parsedDate = date1?.toDate();
+    const day = parsedDate?.getDay();
+    const daysToAdd = daysToAddForNextMonday(day);
     const workoutDate = new Date(
-      parsedDate?.setDate(parsedDate.getDate() + Number(weeks) * 7)
+      parsedDate?.setDate(parsedDate.getDate() + Number(weeks) * 7 + daysToAdd)
     );
+
     const date2 = new Date();
     const diffTime = Math.abs(date2 - workoutDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return ` - termina em ${diffDays} ${diffDays > 1 ? 'dias' : 'dia'}`;
-  };
-
-  const getStartWorkoutDate = (date) => {
-    if (!date) return 'Não iniciado';
-
-    const workoutDate = date.toDate();
-
-    if (isSunday(workoutDate)) {
-      return add(workoutDate, { days: 1 }).toLocaleDateString('pt-BR');
-    }
-
-    const dateNextWeek = add(workoutDate, { days: 7 });
-    return startOfWeek(dateNextWeek).toLocaleDateString('pt-BR');
   };
 
   const getData = async () => {
@@ -109,7 +131,6 @@ export function Oriented() {
     const activeFoundWeek = getActiveWeek(singleData);
     setActiveWeek(activeFoundWeek);
     setIsLoading(false);
-    localStorage.setItem('workoutDate', singleData.newWorkoutDate);
   };
 
   const showDrawer = () => {
@@ -129,17 +150,6 @@ export function Oriented() {
         workoutDate: data.newWorkoutDate.toDate().toLocaleDateString('pt-BR'),
       },
     });
-  };
-
-  const calculateValidDateWorkout = (date) => {
-    if (!date) return 'Treino não cadastrado ainda.';
-
-    const weeks = editForm.amountOfWeeks;
-    const dateWorkout = date?.toDate();
-    const dateWorkoutPlusWeeks = new Date(
-      dateWorkout?.setDate(dateWorkout.getDate() + Number(weeks) * 7)
-    );
-    return dateWorkoutPlusWeeks.toLocaleDateString('pt-BR');
   };
 
   const toggleNewWorkout = async (hasNew) => {
@@ -234,7 +244,7 @@ export function Oriented() {
                   {data?.height} m
                 </Descriptions.Item>
                 <Descriptions.Item label="Início">
-                  {getStartWorkoutDate(data?.createdAt)}
+                  {calculateStartDateWorkout(data?.newWorkoutDate)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Treino criado em">
                   {data?.newWorkoutDate?.toDate().toLocaleDateString('pt-BR')}

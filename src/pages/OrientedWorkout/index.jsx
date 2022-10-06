@@ -1,24 +1,23 @@
 /* eslint-disable new-cap */
 /* eslint-disable react/jsx-no-bind */
 import { Breadcrumb, Button, Col, Row, Space, Tabs } from 'antd';
+import html2canvas from 'html2canvas';
 import { useContext, useEffect, useState } from 'react';
+import { HiOutlineDownload } from 'react-icons/hi';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import html2canvas from 'html2canvas';
-
-import { HiOutlineDownload } from 'react-icons/hi';
 
 import Loader from '../../components/Loader';
 import { workoustIds } from '../../constants/workoutsNamesById';
 import userContext from '../../contexts/userContext';
 import CrudService from '../../services/CrudService';
 import { isTrainer } from '../../utils/checkRoles';
+import { isDesktop } from '../../utils/detectSizeScreen';
 import { errorHandler } from '../../utils/errorHandler';
 import { getActiveWeek } from '../../utils/getActiveWeek';
 import { AnnotationModal } from './AnnotationModal';
 import { WorkoutTableForm } from './OrientedWorkoutForm';
 import * as S from './styles';
-import { isDesktop } from '../../utils/detectSizeScreen';
 
 const { TabPane } = Tabs;
 
@@ -28,6 +27,7 @@ export function OrientedWorkout() {
   const userCon = useContext(userContext);
   const TABLE_DB_NAME = `users/${id}/treinos`;
 
+  // get activeWeek from localstorage
   const [activeWeek, setActiveWeek] = useState(state?.activeWeekParam || 1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [user, setUser] = useState({ name: '', id: '' });

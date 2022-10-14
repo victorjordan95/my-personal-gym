@@ -52,7 +52,10 @@ export function WorkoutTableForm({
   }
 
   function updateExercise({ data, exercise }) {
-    const index = freezedDB.workouts.findIndex((el) => el.key === exercise.key);
+    debugger;
+    const index = freezedDB.workouts.findIndex(
+      (el) => el.key === exercise.key && el.weekId === exercise.weekId
+    );
     freezedDB.workouts[index] = data;
     updateBD(week.id, freezedDB);
   }

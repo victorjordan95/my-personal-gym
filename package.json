@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/charts": "^1.4.2",
-    "@sentry/react": "^7.11.1",
+    "@sentry/react": "^7.36.0",
     "@sentry/tracing": "^7.11.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
